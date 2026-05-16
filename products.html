@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #f0ede8;
+    --surface: #faf9f7;
+    --border: #ddd9d3;
+    --text: #1a1a18;
+    --text-muted: #888880;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 48px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
+  .nav-links { display: flex; gap: 0; }
+
+  .nav-links a {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0 1rem;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  .nav-end { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+
+  main { padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .page-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  .hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .hint a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .hint a:hover { text-decoration: underline; }
+
+  .status-bar {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 0.4rem 0;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 24px;
+  }
+
+  .status-bar.loading { color: var(--accent); }
+  .status-bar.error { color: #8b3a2a; }
+
+  .spinner {
+    width: 12px; height: 12px;
+    border: 1.5px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+
+  thead { background: var(--bg); }
+
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  th:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--bg);
+    z-index: 1;
+    min-width: 160px;
+  }
+
+  td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--surface);
+    z-index: 1;
+    font-weight: 500;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: #f5f3ef; }
+  tr:hover td:first-child { background: #f5f3ef; }
+
+  .mono-cell {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+    color: var(--text);
+  }
+
+  .zero {
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .product-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .calc-link {
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+    opacity: 0.7;
+    font-family: var(--mono);
+  }
+
+  .calc-link:hover { opacity: 1; text-decoration: underline; }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+
+  .empty-state p { font-size: 14px; margin-top: 0.5rem; }
+
+  @media (max-width: 768px) {
+    main { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">⬡ atelier</span>
+  <div class="nav-links">
+    <a href="index.html">Materials</a>
+    <a href="products.html" class="active">Products</a>
+    <a href="calculator.html">Calculator</a>
+  </div>
+  <div class="nav-end">
+    <button class="btn-ghost" id="loginBtn" onclick="handleLogin()" style="font-size:12px;padding:4px 10px;background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text-muted);">sign in</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <span class="page-title">products</span>
+    <span class="hint">
+      ✎ Edit in
+      <a href="https://docs.google.com/spreadsheets/d/1dApBzOelhetQ8_BVAw-900bjjRsaNbl2e2d_XeHEPso/edit#gid=0" target="_blank">Google Sheets → Products</a>
+    </span>
+  </div>
+
+  <div class="status-bar" id="statusBar"></div>
+
+  <div class="table-wrap">
+    <table id="productsTable">
+      <thead id="thead"></thead>
+      <tbody id="tbody">
+        <tr>
+          <td colspan="20">
+            <div class="empty-state">
+              <div style="font-size:32px;margin-bottom:8px;">⬡</div>
+              <p>Loading products…</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const API = "https://materials-parser-api.onrender.com";
+const SHEETS_URL = "https://docs.google.com/spreadsheets/d/1dApBzOelhetQ8_BVAw-900bjjRsaNbl2e2d_XeHEPso/edit";
+
+function setStatus(msg, type = "") {
+  const bar = document.getElementById("statusBar");
+  bar.className = "status-bar" + (type ? " " + type : "");
+  bar.innerHTML = type === "loading"
+    ? `<span class="spinner"></span> ${msg}`
+    : msg;
+}
+
+function clearStatus() {
+  const bar = document.getElementById("statusBar");
+  bar.innerHTML = "";
+  bar.className = "status-bar";
+}
+
+async function loadProducts() {
+  setStatus("Loading…", "loading");
+  try {
+    const res = await fetch(`${API}/products`);
+    const data = await res.json();
+    renderTable(data.headers, data.products);
+    clearStatus();
+  } catch(e) {
+    setStatus("Failed to load. API may be waking up — try again in 30s.", "error");
+  }
+}
+
+function renderTable(headers, products) {
+  const thead = document.getElementById("thead");
+  const tbody = document.getElementById("tbody");
+  thead.innerHTML = "";
+  tbody.innerHTML = "";
+
+  if (!products || products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="20">
+      <div class="empty-state">
+        <div style="font-size:32px;margin-bottom:8px;">⬡</div>
+        <p>No products yet — add them in <a href="${SHEETS_URL}" target="_blank" style="color:var(--accent)">Google Sheets → Products</a></p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  // Build header row
+  const trHead = document.createElement("tr");
+  headers.forEach((h, i) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    if (i > 0) th.style.textAlign = "right";
+    trHead.appendChild(th);
+  });
+  // Extra column for calculator link
+  const thCalc = document.createElement("th");
+  thCalc.textContent = "";
+  trHead.appendChild(thCalc);
+  thead.appendChild(trHead);
+
+  // Build data rows
+  products.forEach(product => {
+    const tr = document.createElement("tr");
+    const name = product[headers[0]] || "—";
+
+    headers.forEach((h, i) => {
+      const td = document.createElement("td");
+      const val = product[h] || "";
+
+      if (i === 0) {
+        // Product name + link to calculator
+        td.innerHTML = `
+          <div class="product-name-cell">
+            <span>${name}</span>
+            <a class="calc-link" href="calculator.html?product=${encodeURIComponent(name)}">→ calculate</a>
+          </div>`;
+      } else {
+        const num = parseFloat(val);
+        if (val === "" || val === "0" || num === 0) {
+          td.className = "zero";
+          td.textContent = val === "" ? "—" : "0";
+        } else {
+          td.className = "mono-cell";
+          td.textContent = val;
+        }
+      }
+      tr.appendChild(td);
+    });
+
+    // Empty action cell
+    const tdAction = document.createElement("td");
+    tr.appendChild(tdAction);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function handleLogin() {
+  alert("Google login coming soon");
+}
+
+loadProducts();
+</script>
+</body>
+</html>
