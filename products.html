@@ -62,7 +62,10 @@
     border-bottom: 1px solid var(--border);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
   }
+
+  body { overflow-x: hidden; }
 
   table { width: auto; min-width: 100%; border-collapse: collapse; table-layout: auto; }
   thead { background: var(--bg); }
@@ -75,12 +78,9 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     border-bottom: 1px solid var(--border);
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: normal;
+    white-space: nowrap;
     position: relative;
     width: 1%;
-    max-width: 100px;
   }
 
   .th-inner {
@@ -95,7 +95,7 @@
   .th-right { display: flex; gap: 1px; align-items: center; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; justify-content: flex-end; }
   th:hover .th-left, th:hover .th-right { opacity: 1; }
 
-  .th-name { outline: none; cursor: text; white-space: normal; word-break: break-word; text-align: center; }
+  .th-name { outline: none; cursor: text; white-space: nowrap; text-align: center; }
   th:first-child .th-name { text-align: left; }
   th:not(:first-child) .th-name { text-align: right; }
   .th-name:focus { color: var(--text); }
