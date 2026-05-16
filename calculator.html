@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #f0ede8;
+    --surface: #faf9f7;
+    --border: #ddd9d3;
+    --text: #1a1a18;
+    --text-muted: #888880;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 44px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.05em; text-decoration: none; color: var(--text); flex-shrink: 0; }
+  .nav-links { display: flex; }
+  .nav-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; padding: 0 0.6rem; height: 44px; display: flex; align-items: center; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.active { color: var(--text); border-bottom-color: var(--accent); }
+  .nav-end { margin-left: auto; flex-shrink: 0; }
+  .sign-in-btn { font-size: 11px; padding: 3px 8px; background: none; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; color: var(--text-muted); font-family: var(--sans); white-space: nowrap; }
+
+  /* LAYOUT */
+  main { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; max-width: 800px; margin: 0 auto; }
+
+  /* TOP BAR */
+  .top-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .field-group { display: flex; align-items: center; gap: 0.5rem; }
+  .field-label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  input.field-input {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    width: 80px;
+  }
+  input.field-input:focus { border-color: var(--accent); }
+
+  /* PRODUCT SELECTOR */
+  .product-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .qty-input {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: var(--text);
+    outline: none;
+    width: 64px;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .qty-input:focus { border-color: var(--accent); }
+
+  select.product-select {
+    font-family: var(--sans);
+    font-size: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+    flex: 1;
+    min-width: 160px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    transition: border-color 0.15s;
+  }
+  select.product-select:focus { border-color: var(--accent); }
+
+  /* POSITIONS */
+  .positions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .position-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .position-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  .position-qty {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 50px;
+  }
+
+  .position-selects { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+
+  select.mat-select, select.color-select, select.opt-select {
+    font-family: var(--sans);
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 8px;
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+    transition: border-color 0.15s;
+  }
+  select.mat-select:focus, select.color-select:focus, select.opt-select:focus { border-color: var(--accent); }
+
+  .position-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .position-price {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    text-align: right;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .position-price.na { color: var(--text-muted); }
+
+  /* SUMMARY */
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-row.total {
+    background: var(--accent-light);
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .summary-label { color: var(--text-muted); font-size: 12px; }
+  .summary-value { font-family: var(--mono); font-size: 13px; }
+  .summary-row.total .summary-value { font-size: 15px; color: var(--accent); }
+
+  .markup-row { display: flex; align-items: center; gap: 0.5rem; }
+  .markup-input {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 6px;
+    width: 56px;
+    text-align: right;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .markup-input:focus { border-color: var(--accent); }
+
+  /* admin-only rows hidden by default */
+  .admin-only { display: none; }
+  body.is-admin .admin-only { display: flex; }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 13px; }
+
+  .spinner { width: 12px; height: 12px; border: 1.5px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .position-label { width: 100%; }
+    .position-card { gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">⬡ atelier</span>
+  <div class="nav-links">
+    <a href="index.html">Materials</a>
+    <a href="products.html">Products</a>
+    <a href="calculator.html" class="active">Calculator</a>
+  </div>
+  <div class="nav-end">
+    <button class="sign-in-btn" id="loginBtn" onclick="handleLogin()">sign in</button>
+  </div>
+</nav>
+
+<main>
+  <!-- TOP BAR: hourly rate -->
+  <div class="top-bar">
+    <div class="field-group">
+      <span class="field-label">Rate /hr</span>
+      <input class="field-input" type="number" id="hourlyRate" value="20" min="0" step="1" oninput="recalc()">
+      <span class="field-label">EUR</span>
+    </div>
+    <div class="field-group admin-only" id="markupField" style="display:none;">
+      <span class="field-label">Markup</span>
+      <input class="markup-input field-input" type="number" id="markupPct" value="30" min="0" step="5" oninput="recalc()">
+      <span class="field-label">%</span>
+    </div>
+  </div>
+
+  <!-- PRODUCT SELECTOR -->
+  <div class="product-bar">
+    <input class="qty-input" type="number" id="qty" value="1" min="1" step="1" oninput="recalc()">
+    <select class="product-select" id="productSelect" onchange="onProductChange()">
+      <option value="">— select product —</option>
+    </select>
+  </div>
+
+  <!-- POSITIONS -->
+  <div class="positions" id="positions">
+    <div class="empty-state">Select a product above to start</div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary" id="summary" style="display:none;">
+    <div class="summary-row">
+      <span class="summary-label">Materials</span>
+      <span class="summary-value" id="sumMaterials">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Labour</span>
+      <span class="summary-value" id="sumLabour">—</span>
+    </div>
+    <div class="summary-row admin-only" id="sumCostRow">
+      <span class="summary-label">Cost price</span>
+      <span class="summary-value" id="sumCost">—</span>
+    </div>
+    <div class="summary-row admin-only" id="sumMarkupRow">
+      <span class="summary-label">Markup</span>
+      <span class="summary-value" id="sumMarkup">—</span>
+    </div>
+    <div class="summary-row total">
+      <span>Total</span>
+      <span class="summary-value" id="sumTotal">—</span>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = "https://materials-parser-api.onrender.com";
+let products = [];
+let headers = [];
+let materials = [];
+let isAdmin = false;
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadProducts(), loadMaterials()]);
+}
+
+async function loadProducts() {
+  try {
+    const res = await fetch(`${API}/products`);
+    const data = await res.json();
+    headers = data.headers || [];
+    products = data.products || [];
+    populateProductSelect();
+  } catch(e) {
+    console.error("Failed to load products", e);
+  }
+}
+
+async function loadMaterials() {
+  try {
+    const res = await fetch(`${API}/materials`);
+    materials = await res.json();
+    // Parse colors/variants if strings
+    materials.forEach(m => {
+      if (typeof m.colors === "string") { try { m.colors = JSON.parse(m.colors); } catch { m.colors = []; } }
+      if (typeof m.variants === "string") { try { m.variants = JSON.parse(m.variants); } catch { m.variants = []; } }
+    });
+  } catch(e) {
+    console.error("Failed to load materials", e);
+  }
+}
+
+function populateProductSelect() {
+  const sel = document.getElementById("productSelect");
+  sel.innerHTML = '<option value="">— select product —</option>';
+  products.forEach((p, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = p[headers[0]] || `Product ${i+1}`;
+    sel.appendChild(opt);
+  });
+
+  // Check if product pre-selected via URL param
+  const params = new URLSearchParams(window.location.search);
+  const preselect = params.get("product");
+  if (preselect) {
+    const idx = products.findIndex(p => p[headers[0]] === preselect);
+    if (idx >= 0) { sel.value = idx; onProductChange(); }
+  }
+}
+
+// ── PRODUCT CHANGE ────────────────────────────────────────────────────────────
+function onProductChange() {
+  const sel = document.getElementById("productSelect");
+  const idx = parseInt(sel.value);
+  if (isNaN(idx)) {
+    document.getElementById("positions").innerHTML = '<div class="empty-state">Select a product above to start</div>';
+    document.getElementById("summary").style.display = "none";
+    return;
+  }
+
+  const product = products[idx];
+  renderPositions(product);
+  document.getElementById("summary").style.display = "block";
+  recalc();
+}
+
+// ── RENDER POSITIONS ──────────────────────────────────────────────────────────
+function renderPositions(product) {
+  const container = document.getElementById("positions");
+  container.innerHTML = "";
+
+  // Each header (except first = name and last = working hours) is a material position
+  const positionHeaders = headers.slice(1, -1); // skip Product Name and Working hours
+
+  positionHeaders.forEach(h => {
+    const qty = parseFloat(product[h] || "0");
+    if (!qty || qty === 0) return; // skip zero positions
+
+    const card = document.createElement("div");
+    card.className = "position-card";
+    card.dataset.header = h;
+    card.dataset.qty = qty;
+
+    // Label
+    const label = document.createElement("div");
+    label.className = "position-label";
+    label.textContent = h;
+
+    // Qty
+    const qtyEl = document.createElement("div");
+    qtyEl.className = "position-qty";
+    qtyEl.textContent = `× ${qty}`;
+
+    // Thumbnail
+    const thumb = document.createElement("img");
+    thumb.className = "position-thumb";
+    thumb.src = "";
+    thumb.alt = "";
+
+    // Selects
+    const selects = document.createElement("div");
+    selects.className = "position-selects";
+
+    // Guess which material type fits this header
+    const typeHint = guessTypeFromHeader(h);
+    const filtered = typeHint
+      ? materials.filter(m => m.type && m.type.toLowerCase().includes(typeHint))
+      : materials;
+
+    // Material select
+    const matSel = document.createElement("select");
+    matSel.className = "mat-select";
+    matSel.innerHTML = '<option value="">— select material —</option>';
+    filtered.forEach((m, i) => {
+      const opt = document.createElement("option");
+      opt.value = materials.indexOf(m); // use index in full materials array
+      opt.textContent = m.title || m.url;
+      matSel.appendChild(opt);
+    });
+
+    // Color select
+    const colorSel = document.createElement("select");
+    colorSel.className = "color-select";
+    colorSel.innerHTML = '<option value="">— color —</option>';
+    colorSel.style.display = "none";
+
+    // Option select (size/length)
+    const optSel = document.createElement("select");
+    optSel.className = "opt-select";
+    optSel.innerHTML = '<option value="">— option —</option>';
+    optSel.style.display = "none";
+
+    // Price display
+    const priceEl = document.createElement("div");
+    priceEl.className = "position-price na";
+    priceEl.textContent = "—";
+
+    // On material change
+    matSel.onchange = () => {
+      const mi = parseInt(matSel.value);
+      const mat = isNaN(mi) ? null : materials[mi];
+
+      // Reset color
+      colorSel.innerHTML = '<option value="">— color —</option>';
+      colorSel.style.display = "none";
+      optSel.innerHTML = '<option value="">— option —</option>';
+      optSel.style.display = "none";
+      thumb.src = "";
+      priceEl.textContent = "—";
+      priceEl.className = "position-price na";
+
+      if (!mat) { recalc(); return; }
+
+      // Populate colors
+      const colors = mat.colors || [];
+      if (colors.length > 0) {
+        colors.forEach((c, ci) => {
+          const opt = document.createElement("option");
+          opt.value = ci;
+          opt.textContent = c.name || `Color ${ci+1}`;
+          colorSel.appendChild(opt);
+        });
+        colorSel.style.display = "block";
+        // Set first color
+        colorSel.value = 0;
+        if (colors[0]?.image) thumb.src = colors[0].image;
+      }
+
+      // Populate options/variants
+      const variants = mat.variants || [];
+      if (variants.length > 0 && variants[0].options?.length > 0) {
+        variants[0].options.forEach(o => {
+          const opt = document.createElement("option");
+          opt.value = o; opt.textContent = o;
+          optSel.appendChild(opt);
+        });
+        optSel.style.display = "block";
+      }
+
+      updatePositionPrice(mat, qty, priceEl);
+      recalc();
+    };
+
+    // On color change
+    colorSel.onchange = () => {
+      const mi = parseInt(matSel.value);
+      const mat = isNaN(mi) ? null : materials[mi];
+      if (!mat) return;
+      const ci = parseInt(colorSel.value);
+      const color = (mat.colors || [])[ci];
+      if (color?.image) thumb.src = color.image;
+      recalc();
+    };
+
+    optSel.onchange = recalc;
+
+    selects.appendChild(matSel);
+    selects.appendChild(colorSel);
+    selects.appendChild(optSel);
+
+    card.appendChild(label);
+    card.appendChild(qtyEl);
+    card.appendChild(thumb);
+    card.appendChild(selects);
+    card.appendChild(priceEl);
+    card.dataset.priceEl = ""; // mark for recalc
+
+    container.appendChild(card);
+  });
+
+  if (container.children.length === 0) {
+    container.innerHTML = '<div class="empty-state">No material positions defined for this product</div>';
+  }
+}
+
+function updatePositionPrice(mat, posQty, priceEl) {
+  const price = parsePrice(mat.price || "");
+  if (!price) { priceEl.textContent = "—"; priceEl.className = "position-price na"; return; }
+  const qty = parseInt(document.getElementById("qty").value) || 1;
+  const total = price * posQty * qty;
+  priceEl.textContent = `${total.toFixed(2)} EUR`;
+  priceEl.className = "position-price";
+}
+
+function guessTypeFromHeader(h) {
+  const l = h.toLowerCase();
+  if (l.includes("outer") || l.includes("fabric") || l.includes("shell")) return "outer";
+  if (l.includes("lining") || l.includes("inner")) return "lining";
+  if (l.includes("zipper") || l.includes("zip")) return "zipper";
+  if (l.includes("webbing") || l.includes("strap") || l.includes("binding")) return "webbing";
+  if (l.includes("foam") || l.includes("insul")) return "insulation";
+  if (l.includes("cord") || l.includes("rope")) return "cord";
+  if (l.includes("buckle") || l.includes("hardware") || l.includes("puller")) return "hardware";
+  return null;
+}
+
+function parsePrice(str) {
+  if (!str) return 0;
+  const match = str.replace(",", ".").match(/[\d.]+/);
+  return match ? parseFloat(match[0]) : 0;
+}
+
+// ── RECALC ────────────────────────────────────────────────────────────────────
+function recalc() {
+  const qty = parseInt(document.getElementById("qty").value) || 1;
+  const rate = parseFloat(document.getElementById("hourlyRate").value) || 0;
+
+  // Get selected product working hours
+  const sel = document.getElementById("productSelect");
+  const idx = parseInt(sel.value);
+  const product = isNaN(idx) ? null : products[idx];
+  const workingHoursHeader = headers[headers.length - 1]; // last header = Working hours
+  const hours = product ? parseFloat(product[workingHoursHeader] || "0") : 0;
+
+  // Sum materials
+  let matTotal = 0;
+  const cards = document.querySelectorAll(".position-card");
+  cards.forEach(card => {
+    const posQty = parseFloat(card.dataset.qty || "0");
+    const matSel = card.querySelector(".mat-select");
+    const mi = parseInt(matSel?.value);
+    const mat = isNaN(mi) ? null : materials[mi];
+    const price = mat ? parsePrice(mat.price || "") : 0;
+    const lineTotal = price * posQty * qty;
+    matTotal += lineTotal;
+
+    // Update price display
+    const priceEl = card.querySelector(".position-price");
+    if (priceEl) {
+      if (mat && price) {
+        priceEl.textContent = `${lineTotal.toFixed(2)} EUR`;
+        priceEl.className = "position-price";
+      } else {
+        priceEl.textContent = "—";
+        priceEl.className = "position-price na";
+      }
+    }
+  });
+
+  const labourTotal = hours * rate * qty;
+  const costTotal = matTotal + labourTotal;
+  const markupPct = parseFloat(document.getElementById("markupPct")?.value || "0");
+  const markupAmt = costTotal * (markupPct / 100);
+  const finalTotal = isAdmin ? costTotal + markupAmt : costTotal;
+
+  document.getElementById("sumMaterials").textContent = `${matTotal.toFixed(2)} EUR`;
+  document.getElementById("sumLabour").textContent = `${labourTotal.toFixed(2)} EUR`;
+
+  if (isAdmin) {
+    document.getElementById("sumCost").textContent = `${costTotal.toFixed(2)} EUR`;
+    document.getElementById("sumMarkup").textContent = `${markupAmt.toFixed(2)} EUR (+${markupPct}%)`;
+    document.getElementById("sumTotal").textContent = `${(costTotal + markupAmt).toFixed(2)} EUR`;
+  } else {
+    document.getElementById("sumTotal").textContent = `${costTotal.toFixed(2)} EUR`;
+  }
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+function handleLogin() {
+  // TODO: Google OAuth
+  // For now toggle admin for testing
+  isAdmin = !isAdmin;
+  document.body.classList.toggle("is-admin", isAdmin);
+  document.getElementById("loginBtn").textContent = isAdmin ? "sign out" : "sign in";
+  const markupField = document.getElementById("markupField");
+  if (markupField) markupField.style.display = isAdmin ? "flex" : "none";
+  recalc();
+}
+
+init();
+</script>
+</body>
+</html>
