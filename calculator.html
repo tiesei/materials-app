@@ -139,7 +139,9 @@
     color: var(--text); outline: none; cursor: pointer; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
+    transition: border-color 0.15s, color 0.15s;
   }
+  select.color-select.out-of-stock { border-color: #c0392b; color: #c0392b; }
 
   .position-price {
     font-family: var(--mono); font-size: 13px; text-align: right; min-width: 90px; flex-shrink: 0;
@@ -202,6 +204,11 @@
     <select class="product-select" id="productSelect" onchange="onProductChange()">
       <option value="">— select product —</option>
     </select>
+  </div>
+
+  <div class="save-bar">
+    <button class="btn-save" id="saveBtn" onclick="saveState()">Save</button>
+    <span class="save-hint" id="saveHint"></span>
   </div>
 
   <div class="positions" id="positions">
@@ -446,6 +453,7 @@ function renderPositions(product) {
       if (!mat) return;
       const c = (mat.colors || [])[parseInt(colorSel.value)];
       if (c?.image) { img.src = c.image; }
+      updateColorSelectStyle(colorSel, mat);
       recalc();
     };
 
@@ -501,6 +509,7 @@ function onMatSelected(mi, img, colorSel, optSel, priceEl, posQty) {
     colorSel.style.display = "block";
     colorSel.value = 0;
     if (colors[0]?.image) img.src = colors[0].image;
+    updateColorSelectStyle(colorSel, mat);
   }
 
   const variants = mat.variants || [];
@@ -583,7 +592,86 @@ function handleLogin() {
   recalc();
 }
 
-init();
+// ── OUT OF STOCK COLOR HIGHLIGHT ─────────────────────────────────────────────
+function updateColorSelectStyle(colorSel, mat) {
+  const ci = parseInt(colorSel.value);
+  const color = !isNaN(ci) ? (mat?.colors || [])[ci] : null;
+  const inStock = !color || !color.availability || color.availability === "In stock";
+  colorSel.classList.toggle("out-of-stock", !inStock);
+}
+
+// ── SAVE / RESTORE STATE ──────────────────────────────────────────────────────
+const SAVE_KEY = "calc_state";
+
+function saveState() {
+  const state = {
+    qty: document.getElementById("qty").value,
+    productIdx: document.getElementById("productSelect").value,
+    rate: document.getElementById("hourlyRate").value,
+    positions: []
+  };
+  document.querySelectorAll(".position-card").forEach(card => {
+    const matInput = card.querySelector(".mat-search-input");
+    const colorSel = card.querySelector(".color-select");
+    const optSel = card.querySelector(".opt-select");
+    state.positions.push({
+      header: card.dataset.header,
+      matIdx: matInput?.dataset.selectedIdx || "",
+      matTitle: matInput?.value || "",
+      colorIdx: colorSel?.value || "",
+      optVal: optSel?.value || ""
+    });
+  });
+  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  const hint = document.getElementById("saveHint");
+  const btn = document.getElementById("saveBtn");
+  hint.textContent = "Saved ✓";
+  btn.classList.add("saved");
+  setTimeout(() => { hint.textContent = ""; btn.classList.remove("saved"); }, 2000);
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw) return;
+  try {
+    const state = JSON.parse(raw);
+    if (state.rate) document.getElementById("hourlyRate").value = state.rate;
+    if (state.qty) document.getElementById("qty").value = state.qty;
+    if (state.productIdx !== undefined && state.productIdx !== "") {
+      const sel = document.getElementById("productSelect");
+      sel.value = state.productIdx;
+      onProductChange();
+      // After positions rendered, restore each position
+      setTimeout(() => {
+        const cards = document.querySelectorAll(".position-card");
+        cards.forEach(card => {
+          const saved = state.positions.find(p => p.header === card.dataset.header);
+          if (!saved || saved.matIdx === "") return;
+          const matInput = card.querySelector(".mat-search-input");
+          const colorSel = card.querySelector(".color-select");
+          const optSel = card.querySelector(".opt-select");
+          const mi = parseInt(saved.matIdx);
+          const mat = isNaN(mi) ? null : materials[mi];
+          if (!mat) return;
+          matInput.dataset.selectedIdx = saved.matIdx;
+          matInput.value = saved.matTitle || mat.title || "";
+          const img = card.querySelector("img");
+          onMatSelected(mi, img, colorSel, optSel, card.querySelector(".position-price"), parseFloat(card.dataset.qty));
+          if (saved.colorIdx !== "" && colorSel) {
+            colorSel.value = saved.colorIdx;
+            const c = (mat.colors || [])[parseInt(saved.colorIdx)];
+            if (c?.image && img) img.src = c.image;
+            updateColorSelectStyle(colorSel, mat);
+          }
+          if (saved.optVal && optSel) optSel.value = saved.optVal;
+        });
+        recalc();
+      }, 100);
+    }
+  } catch(e) { console.warn("restoreState failed", e); }
+}
+
+init().then(restoreState);
 </script>
 </body>
 </html>
