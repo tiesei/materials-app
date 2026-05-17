@@ -342,7 +342,8 @@ function renderPositions(product) {
     img.onerror = () => img.classList.remove("loaded");
     const placeholder = document.createElement("span");
     placeholder.className = "thumb-placeholder";
-    placeholder.textContent = "🧵";
+    const EMOJIS = ["🧵","🪡","✂️","🧶","📐","🪢","🎨","🧷"];
+    placeholder.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
     thumbWrap.appendChild(img);
     thumbWrap.appendChild(placeholder);
 
@@ -494,6 +495,7 @@ function onMatSelected(mi, img, colorSel, optSel, priceEl, posQty) {
       o.value = ci;
       const inStock = !c.availability || c.availability === "In stock";
       o.textContent = (c.name || `Color ${ci+1}`) + (inStock ? "" : " (out of stock)");
+      if (!inStock) o.style.color = "#c0392b";
       colorSel.appendChild(o);
     });
     colorSel.style.display = "block";
