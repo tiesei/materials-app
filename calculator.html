@@ -27,7 +27,22 @@
     padding: 0 0.75rem; display: flex; align-items: center; gap: 0.5rem;
     height: 44px; position: sticky; top: 0; z-index: 100;
   }
-  .nav-brand { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.05em; text-decoration: none; color: var(--text); }
+
+  .nav-brand {
+    display: flex; flex-direction: column; align-items: flex-start;
+    text-decoration: none; gap: 0; line-height: 1; flex-shrink: 0;
+    padding: 2px 0;
+  }
+  .nav-brand img {
+    height: 26px; width: auto; display: block;
+  }
+  .nav-brand-sub {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    color: var(--text-muted); letter-spacing: 0.12em;
+    text-transform: lowercase; line-height: 1; margin-top: 1px;
+    padding-left: 1px;
+  }
+
   .nav-links { display: flex; }
   .nav-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; padding: 0 0.6rem; height: 44px; display: flex; align-items: center; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
   .nav-links a:hover { color: var(--text); }
@@ -191,12 +206,69 @@
     .templates-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
     .position-label { width: 100%; }
   }
+
+  /* ── INTRO OVERLAY ─────────────────────────────────────────────────────── */
+  #intro-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(10, 12, 20, 0.96);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+  }
+  #intro-overlay.fade-out { opacity: 0; }
+  #intro-overlay.hidden { display: none; }
+
+  #intro-logo {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    opacity: 0;
+  }
+  #intro-logo img {
+    height: 72px; width: auto;
+    filter: drop-shadow(0 0 12px rgba(180,200,255,0.4));
+  }
+  #intro-logo-sub {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+    color: rgba(200, 210, 240, 0.85); text-transform: lowercase;
+  }
+
+  @keyframes glitch-flicker {
+    0%   { opacity: 0; transform: translate(0,0); }
+    5%   { opacity: 1; transform: translate(-2px, 1px); }
+    6%   { opacity: 0; transform: translate(0,0); }
+    10%  { opacity: 0; }
+    11%  { opacity: 1; transform: translate(3px, -1px); }
+    12%  { opacity: 0.3; transform: translate(-1px, 0); }
+    13%  { opacity: 1; transform: translate(0,0); }
+    30%  { opacity: 1; transform: translate(0,0); }
+    31%  { opacity: 0.2; transform: translate(2px, 0); }
+    32%  { opacity: 1; transform: translate(0,0); }
+    55%  { opacity: 1; transform: translate(0,0); }
+    56%  { opacity: 0; }
+    57%  { opacity: 1; transform: translate(-1px, 1px); }
+    58%  { opacity: 1; transform: translate(0,0); }
+    100% { opacity: 1; transform: translate(0,0); }
+  }
+
+  .glitch-active {
+    animation: glitch-flicker 1.6s steps(1) forwards;
+  }
 </style>
 </head>
 <body>
 
+<!-- INTRO OVERLAY -->
+<div id="intro-overlay" class="hidden">
+  <div id="intro-logo">
+    <img src="logo.png" alt="smysl makes">
+    <div id="intro-logo-sub">makes</div>
+  </div>
+</div>
+
 <nav>
-  <span class="nav-brand">⬡ atelier</span>
+  <a href="index.html" class="nav-brand">
+    <img src="logo.png" alt="smysl makes">
+    <span class="nav-brand-sub">makes</span>
+  </a>
   <div class="nav-links">
     <a href="index.html">Materials</a>
     <a href="products.html">Products</a>
@@ -268,6 +340,36 @@
 </div>
 
 <script>
+// ── INTRO ANIMATION ───────────────────────────────────────────────────────────
+(function() {
+  const VISIT_KEY = "smysl_last_visit";
+  const THRESHOLD = 30 * 60 * 1000; // 30 minutes
+  const now = Date.now();
+  const last = parseInt(localStorage.getItem(VISIT_KEY) || "0");
+  localStorage.setItem(VISIT_KEY, now);
+
+  if (now - last > THRESHOLD) {
+    const overlay = document.getElementById("intro-overlay");
+    const logo = document.getElementById("intro-logo");
+    overlay.classList.remove("hidden");
+
+    // Start glitch after short delay
+    setTimeout(() => {
+      logo.classList.add("glitch-active");
+    }, 200);
+
+    // Fade out overlay after animation
+    setTimeout(() => {
+      overlay.classList.add("fade-out");
+    }, 2200);
+
+    // Remove overlay fully
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+    }, 3500);
+  }
+})();
+
 const API = "https://materials-parser-api.onrender.com";
 const AUTO_SAVE_KEY = "calc_autosave";
 let products = [], headers = [], materials = [], isAdmin = false;
@@ -683,7 +785,6 @@ async function loadTemplates() {
 function renderTemplates(templates) {
   const sidebar = document.getElementById("templatesSidebar");
   const empty = document.getElementById("templatesEmpty");
-  // Remove old cards
   sidebar.querySelectorAll(".template-card").forEach(el => el.remove());
 
   if (!templates || templates.length === 0) {
@@ -759,7 +860,6 @@ function handleLogin() {
 // ── START ─────────────────────────────────────────────────────────────────────
 (async () => {
   await init();
-  // Restore autosave
   const raw = localStorage.getItem(AUTO_SAVE_KEY);
   if (raw) { try { restoreFromState(JSON.parse(raw)); } catch(e) {} }
 })();
