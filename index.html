@@ -34,7 +34,6 @@
     min-height: 100vh;
   }
 
-  /* NAV */
   nav {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -78,10 +77,8 @@
 
   .nav-end { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 
-  /* MAIN */
   main { padding: 0.75rem; max-width: 100%; }
 
-  /* ADD BAR */
   .add-bar {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -123,18 +120,11 @@
 
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover:not(:disabled) { opacity: 0.88; }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-  }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
   .btn-ghost:hover:not(:disabled) { background: var(--bg); color: var(--text); }
 
-  /* STATUS */
   .status-bar {
     font-family: var(--mono);
     font-size: 12px;
@@ -161,7 +151,6 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* TABLE WRAPPER */
   .table-wrap {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -171,11 +160,7 @@
     max-width: 100%;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
+  table { width: 100%; border-collapse: collapse; }
   thead { background: var(--bg); }
 
   th {
@@ -192,8 +177,6 @@
     background: var(--bg);
   }
 
-
-
   td {
     padding: 0.65rem 0.75rem;
     border-bottom: 1px solid var(--border);
@@ -204,7 +187,6 @@
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #f5f3ef; }
 
-  /* THUMBNAIL */
   .thumb-cell { width: 80px; }
 
   .thumb {
@@ -218,10 +200,7 @@
     background: var(--bg);
   }
 
-  .thumb:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
+  .thumb:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
 
   .thumb.expanded {
     width: 260px;
@@ -232,7 +211,6 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
   }
 
-  /* TYPE BADGE */
   .type-badge {
     font-family: var(--mono);
     font-size: 10px;
@@ -246,7 +224,6 @@
     white-space: nowrap;
   }
 
-  /* TITLE */
   .title-cell { min-width: 160px; max-width: 200px; }
   .title-text { font-weight: 500; font-size: 13px; line-height: 1.4; }
   .title-link {
@@ -260,10 +237,8 @@
   }
   .title-link:hover { opacity: 1; text-decoration: underline; }
 
-  /* DESC */
   .desc-cell { min-width: 160px; max-width: 220px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
 
-  /* NOTES */
   .notes-cell { width: 150px; }
   textarea.notes {
     font-family: var(--sans);
@@ -282,10 +257,7 @@
   }
   textarea.notes:focus { border-color: var(--accent); }
 
-  /* COLORS */
   .colors-cell { width: 150px; }
-
-  .color-select-wrap { position: relative; }
 
   select.color-select {
     font-family: var(--sans);
@@ -326,7 +298,6 @@
     margin-top: 4px;
   }
 
-  /* WEIGHT / PRICE */
   .mono-cell {
     font-family: var(--mono);
     font-size: 12px;
@@ -334,7 +305,6 @@
     color: var(--text);
   }
 
-  /* AVAILABILITY */
   .badge {
     display: inline-block;
     font-size: 11px;
@@ -348,7 +318,6 @@
   .badge.sold{ background: var(--sold-bg); color: var(--sold); }
   .badge.check{ background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
 
-  /* REPARSE BTN */
   .reparse-btn {
     font-size: 14px;
     background: none;
@@ -367,16 +336,9 @@
   .reparse-btn:hover { color: var(--accent); border-color: var(--accent); }
   .reparse-btn.spinning { animation: spin 0.8s linear infinite; }
 
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: var(--text-muted);
-  }
-
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
   .empty-state p { font-size: 14px; margin-top: 0.5rem; }
 
-  /* LOADING SKELETON */
   .skeleton {
     background: linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%);
     background-size: 200% 100%;
@@ -387,7 +349,6 @@
 
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  /* MOBILE */
   @media (max-width: 768px) {
     main { padding: 1rem; }
     .add-bar { flex-wrap: wrap; }
@@ -452,7 +413,6 @@
 <script>
 const API = "https://materials-parser-api.onrender.com";
 
-// ── STATUS ────────────────────────────────────────────────────────────────────
 function setStatus(msg, type = "") {
   const bar = document.getElementById("statusBar");
   bar.className = "status-bar" + (type ? " " + type : "");
@@ -462,11 +422,11 @@ function setStatus(msg, type = "") {
 }
 
 function clearStatus() {
-  document.getElementById("statusBar").innerHTML = "";
-  document.getElementById("statusBar").className = "status-bar";
+  const bar = document.getElementById("statusBar");
+  bar.innerHTML = "";
+  bar.className = "status-bar";
 }
 
-// ── AVAILABILITY BADGE ────────────────────────────────────────────────────────
 function badge(av) {
   if (!av) return `<span class="badge check">—</span>`;
   const l = av.toLowerCase();
@@ -476,12 +436,9 @@ function badge(av) {
   return `<span class="badge check">${av}</span>`;
 }
 
-// ── RENDER ROW ────────────────────────────────────────────────────────────────
 function renderRow(item, idx) {
   const colors = Array.isArray(item.colors) ? item.colors : [];
   const variants = Array.isArray(item.variants) ? item.variants : [];
-  const firstImg = colors[0]?.image || "";
-  const firstUrl = colors[0]?.url || item.url || "#";
   const savedNote = localStorage.getItem("note_" + (item.url || idx)) || "";
 
   const tr = document.createElement("tr");
@@ -496,7 +453,7 @@ function renderRow(item, idx) {
   tdPhoto.className = "thumb-cell";
   const img = document.createElement("img");
   img.className = "thumb";
-  img.src = firstImg;
+  img.src = colors[0]?.image || "";
   img.alt = item.title || "";
   img.loading = "lazy";
   img.onclick = () => img.classList.toggle("expanded");
@@ -530,36 +487,57 @@ function renderRow(item, idx) {
   const tdColors = document.createElement("td");
   tdColors.className = "colors-cell";
 
+  // WEIGHT
+  const tdWeight = document.createElement("td");
+  tdWeight.className = "mono-cell";
+  tdWeight.textContent = item.weight || "—";
+
+  // PRICE — class price-cell for dynamic updates
+  const tdPrice = document.createElement("td");
+  tdPrice.className = "mono-cell price-cell";
+
+  // Set initial price from first color's price_per_unit, fallback to item.price
+  const initialPrice = colors[0]?.price_per_unit;
+  tdPrice.textContent = initialPrice
+    ? initialPrice.toFixed(2).replace(".", ",") + " EUR"
+    : (item.price || "—");
+
+  // STOCK — updates with color selection
+  const tdStock = document.createElement("td");
+  tdStock.innerHTML = badge(colors[0]?.availability || item.availability);
+
   if (colors.length > 0) {
     const colorSel = document.createElement("select");
     colorSel.className = "color-select";
+
     colors.forEach((c, i) => {
       const opt = document.createElement("option");
       opt.value = i;
       const inStock = !c.availability || c.availability === "In stock";
       opt.textContent = (c.name || `Color ${i+1}`) + (inStock ? "" : " (out of stock)");
-      if (!inStock) { opt.style.color = "#bbb"; }
+      if (!inStock) opt.style.color = "#bbb";
       colorSel.appendChild(opt);
     });
-    // Always select first color regardless of stock
+
     colorSel.value = 0;
 
-    const updateColorUI = (idx) => {
-      const c = colors[idx];
+    const updateColorUI = (i) => {
+      const c = colors[i];
       if (!c) return;
       if (c.image) img.src = c.image;
+      // Update price
       if (c.price_per_unit) {
-        const priceStr = c.price_per_unit.toFixed(2).replace(".", ",") + " EUR";
-        const priceCell = colorSel.closest("tr")?.querySelector(".price-cell");
-        if (priceCell) priceCell.textContent = priceStr;
+        tdPrice.textContent = c.price_per_unit.toFixed(2).replace(".", ",") + " EUR";
+      } else if (item.price) {
+        tdPrice.textContent = item.price;
       }
+      // Update stock badge
+      tdStock.innerHTML = badge(c.availability || item.availability);
     };
-    colorSel.onchange = () => updateColorUI(parseInt(colorSel.value));
-    setTimeout(() => updateColorUI(0), 0);
 
+    colorSel.onchange = () => updateColorUI(parseInt(colorSel.value));
     tdColors.appendChild(colorSel);
 
-    // Options dropdown (variants from adventurexpert or multi-size items)
     if (variants.length > 0 && variants[0].options?.length > 0) {
       const optSel = document.createElement("select");
       optSel.className = "options-select";
@@ -574,20 +552,6 @@ function renderRow(item, idx) {
   } else {
     tdColors.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">—</span>`;
   }
-
-  // WEIGHT
-  const tdWeight = document.createElement("td");
-  tdWeight.className = "mono-cell";
-  tdWeight.textContent = item.weight || "—";
-
-  // PRICE
-  const tdPrice = document.createElement("td");
-  tdPrice.className = "mono-cell";
-  tdPrice.textContent = item.price || "—";
-
-  // STOCK
-  const tdStock = document.createElement("td");
-  tdStock.innerHTML = badge(item.availability);
 
   // REPARSE
   const tdAction = document.createElement("td");
@@ -612,7 +576,6 @@ function renderRow(item, idx) {
   return tr;
 }
 
-// ── LOAD MATERIALS ────────────────────────────────────────────────────────────
 async function loadMaterials() {
   setStatus("Loading…", "loading");
   try {
@@ -639,12 +602,9 @@ function renderTable(data) {
     return;
   }
 
-  data.forEach((item, idx) => {
-    tbody.appendChild(renderRow(item, idx));
-  });
+  data.forEach((item, idx) => tbody.appendChild(renderRow(item, idx)));
 }
 
-// ── ADD MATERIAL ──────────────────────────────────────────────────────────────
 async function addMaterial() {
   const input = document.getElementById("urlInput");
   const url = input.value.trim();
@@ -668,12 +628,9 @@ async function addMaterial() {
 
     const data = await res.json();
     input.value = "";
-
-    // Reload full table to get updated order from Sheets
     await loadMaterials();
     setStatus(`✓ Added: ${data.title}`, "");
     setTimeout(clearStatus, 3000);
-
   } catch(e) {
     setStatus(`Error: ${e.message}`, "error");
   } finally {
@@ -681,7 +638,6 @@ async function addMaterial() {
   }
 }
 
-// ── REPARSE ───────────────────────────────────────────────────────────────────
 async function reparseMaterial(url, tr, btn) {
   if (!url) return;
   btn.classList.add("spinning");
@@ -706,18 +662,14 @@ async function reparseMaterial(url, tr, btn) {
   }
 }
 
-// ── LOGIN (placeholder for Google OAuth) ──────────────────────────────────────
 function handleLogin() {
-  // TODO: implement Google OAuth
   alert("Google login coming soon");
 }
 
-// ── ENTER KEY ─────────────────────────────────────────────────────────────────
 document.getElementById("urlInput").addEventListener("keydown", e => {
   if (e.key === "Enter") addMaterial();
 });
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
 loadMaterials();
 </script>
 </body>
