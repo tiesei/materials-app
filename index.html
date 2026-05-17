@@ -538,13 +538,20 @@ function renderRow(item, idx) {
       opt.value = i;
       const inStock = !c.availability || c.availability === "In stock";
       opt.textContent = (c.name || `Color ${i+1}`) + (inStock ? "" : " (out of stock)");
-      if (!inStock) { opt.disabled = true; opt.style.color = "#bbb"; }
+      if (!inStock) { opt.style.color = "#bbb"; }
       colorSel.appendChild(opt);
     });
+    // Always select first color regardless of stock
+    colorSel.value = 0;
 
     colorSel.onchange = () => {
       const c = colors[parseInt(colorSel.value)];
       if (c?.image) img.src = c.image;
+      if (c?.price_per_unit) {
+        const priceStr = c.price_per_unit.toFixed(2).replace(".", ",") + " EUR";
+        const priceCell = colorSel.closest("tr")?.querySelector(".price-cell");
+        if (priceCell) priceCell.textContent = priceStr;
+      }
     };
 
     tdColors.appendChild(colorSel);
