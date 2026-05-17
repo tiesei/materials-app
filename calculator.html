@@ -35,7 +35,33 @@
   .nav-end { margin-left: auto; }
   .sign-in-btn { font-size: 11px; padding: 3px 8px; background: none; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; color: var(--text-muted); font-family: var(--sans); }
 
-  main { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; max-width: 860px; margin: 0 auto; }
+  /* LAYOUT: sidebar for templates */
+  .page-layout { display: flex; gap: 0.75rem; padding: 0.75rem; align-items: flex-start; }
+  .calc-main { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; max-width: 860px; }
+
+  /* TEMPLATES SIDEBAR */
+  .templates-sidebar {
+    width: 200px; flex-shrink: 0; display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .templates-label {
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 0 2px;
+  }
+  .template-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.5rem 0.6rem; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .template-card:hover { border-color: var(--accent); background: var(--accent-light); }
+  .template-name { font-size: 12px; font-weight: 500; line-height: 1.3; padding-right: 18px; }
+  .template-meta { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .template-delete {
+    position: absolute; top: 6px; right: 6px; background: none; border: none;
+    font-size: 14px; color: var(--text-muted); cursor: pointer; line-height: 1;
+    padding: 0 2px; border-radius: 3px;
+  }
+  .template-delete:hover { color: #c0392b; background: #fdf0ee; }
+  .templates-empty { font-size: 12px; color: var(--text-muted); padding: 0 2px; }
 
   .top-bar {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
@@ -68,6 +94,18 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
   }
+  .btn-save-tmpl {
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 5px 12px; cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-save-tmpl:hover { opacity: 0.88; }
+  .autosave-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted);
+    flex-shrink: 0; transition: background 0.3s;
+  }
+  .autosave-dot.saved { background: var(--accent); }
 
   .positions { display: flex; flex-direction: column; gap: 0.5rem; }
 
@@ -75,34 +113,28 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
     padding: 0.65rem 0.75rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
   }
-
   .position-label {
     font-family: var(--mono); font-size: 11px; color: var(--text-muted);
     text-transform: uppercase; letter-spacing: 0.05em; width: 150px; flex-shrink: 0;
   }
-
   .position-qty {
     font-family: var(--mono); font-size: 12px; color: var(--text-muted);
     white-space: nowrap; flex-shrink: 0; min-width: 48px;
   }
 
-  /* Thumbnail placeholder */
   .position-thumb-wrap {
     width: 48px; height: 48px; flex-shrink: 0; border-radius: 6px;
     background: var(--bg); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     overflow: hidden; font-size: 20px;
   }
-  .position-thumb-wrap img {
-    width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 5px;
-  }
+  .position-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 5px; }
   .position-thumb-wrap img.loaded { display: block; }
   .position-thumb-wrap .thumb-placeholder { display: flex; }
   .position-thumb-wrap img.loaded + .thumb-placeholder { display: none; }
 
   .position-selects { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; }
 
-  /* Custom searchable dropdown */
   .mat-dropdown-wrap { position: relative; }
   .mat-search-input {
     width: 100%; font-family: var(--sans); font-size: 13px; background: var(--bg);
@@ -116,22 +148,15 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.12); z-index: 200; max-height: 220px; overflow-y: auto;
   }
   .mat-dropdown-list.open { display: block; }
-  .mat-search-box {
-    padding: 6px 8px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface);
-  }
+  .mat-search-box { padding: 6px 8px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
   .mat-search-box input {
     width: 100%; font-family: var(--sans); font-size: 12px; background: var(--bg);
-    border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px;
-    color: var(--text); outline: none;
+    border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px; color: var(--text); outline: none;
   }
   .mat-search-box input:focus { border-color: var(--accent); }
-  .mat-option {
-    padding: 6px 10px; font-size: 13px; cursor: pointer; transition: background 0.1s;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  .mat-option { padding: 6px 10px; font-size: 13px; cursor: pointer; transition: background 0.1s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .mat-option:hover, .mat-option.selected { background: var(--accent-light); }
   .mat-option.no-results { color: var(--text-muted); font-size: 12px; cursor: default; }
-  .mat-option.placeholder { color: var(--text-muted); }
 
   select.color-select, select.opt-select {
     font-family: var(--sans); font-size: 13px; background: var(--bg);
@@ -141,25 +166,15 @@
     background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
     transition: border-color 0.15s, color 0.15s;
   }
-  select.color-select.out-of-stock { border-color: #c0392b; }
-  select.color-select.out-of-stock::after { color: #c0392b; }
-  /* Only color the select text, not options */
-  select.color-select.out-of-stock { color: #c0392b; }
+  select.color-select.out-of-stock { border-color: #c0392b; color: #c0392b; }
   select.color-select.out-of-stock option { color: var(--text); }
   select.color-select.out-of-stock option[data-out="1"] { color: #c0392b; }
 
-  .position-price {
-    font-family: var(--mono); font-size: 13px; text-align: right; min-width: 90px; flex-shrink: 0;
-  }
+  .position-price { font-family: var(--mono); font-size: 13px; text-align: right; min-width: 90px; flex-shrink: 0; }
   .position-price.na { color: var(--text-muted); }
 
-  .summary {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
-  }
-  .summary-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 13px;
-  }
+  .summary { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .summary-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 13px; }
   .summary-row:last-child { border-bottom: none; }
   .summary-row.total { background: var(--accent-light); font-weight: 600; font-size: 15px; }
   .summary-label { color: var(--text-muted); font-size: 12px; }
@@ -171,7 +186,9 @@
 
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 13px; }
 
-  @media (max-width: 600px) {
+  @media (max-width: 800px) {
+    .page-layout { flex-direction: column; }
+    .templates-sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
     .position-label { width: 100%; }
   }
 </style>
@@ -190,64 +207,75 @@
   </div>
 </nav>
 
-<main>
-  <div class="top-bar">
-    <div class="field-group">
-      <span class="field-label">Rate /hr</span>
-      <input class="field-input" type="number" id="hourlyRate" value="20" min="0" step="1" oninput="recalc()">
-      <span class="field-label">EUR</span>
+<div class="page-layout">
+  <!-- MAIN CALCULATOR -->
+  <div class="calc-main">
+    <div class="top-bar">
+      <div class="field-group">
+        <span class="field-label">Rate /hr</span>
+        <input class="field-input" type="number" id="hourlyRate" value="20" min="0" step="1" oninput="onAnyChange()">
+        <span class="field-label">EUR</span>
+      </div>
+      <div class="field-group admin-only" id="markupField">
+        <span class="field-label">Markup</span>
+        <input class="field-input" type="number" id="markupPct" value="30" min="0" step="5" oninput="onAnyChange()">
+        <span class="field-label">%</span>
+      </div>
     </div>
-    <div class="field-group admin-only" id="markupField">
-      <span class="field-label">Markup</span>
-      <input class="field-input" type="number" id="markupPct" value="30" min="0" step="5" oninput="recalc()">
-      <span class="field-label">%</span>
+
+    <div class="product-bar">
+      <input class="qty-input" type="number" id="qty" value="1" min="1" step="1" oninput="onAnyChange()">
+      <select class="product-select" id="productSelect" onchange="onProductChange()">
+        <option value="">— select product —</option>
+      </select>
+      <div class="autosave-dot" id="autosaveDot" title="Auto-saved"></div>
+      <button class="btn-save-tmpl" onclick="saveTemplate()">Save template</button>
+    </div>
+
+    <div class="positions" id="positions">
+      <div class="empty-state">Select a product above to start</div>
+    </div>
+
+    <div class="summary" id="summary" style="display:none;">
+      <div class="summary-row">
+        <span class="summary-label">Materials</span>
+        <span class="summary-value" id="sumMaterials">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Labour</span>
+        <span class="summary-value" id="sumLabour">—</span>
+      </div>
+      <div class="summary-row admin-only">
+        <span class="summary-label">Cost price</span>
+        <span class="summary-value" id="sumCost">—</span>
+      </div>
+      <div class="summary-row admin-only">
+        <span class="summary-label">Markup</span>
+        <span class="summary-value" id="sumMarkup">—</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span class="summary-value" id="sumTotal">—</span>
+      </div>
     </div>
   </div>
 
-  <div class="product-bar">
-    <input class="qty-input" type="number" id="qty" value="1" min="1" step="1" oninput="recalc()">
-    <select class="product-select" id="productSelect" onchange="onProductChange()">
-      <option value="">— select product —</option>
-    </select>
-    <button class="btn-save" id="saveBtn" onclick="saveState()">Save</button>
-    <span class="save-hint" id="saveHint"></span>
+  <!-- TEMPLATES SIDEBAR -->
+  <div class="templates-sidebar" id="templatesSidebar">
+    <div class="templates-label">Templates</div>
+    <div class="templates-empty" id="templatesEmpty">No saved templates</div>
   </div>
-
-  <div class="positions" id="positions">
-    <div class="empty-state">Select a product above to start</div>
-  </div>
-
-  <div class="summary" id="summary" style="display:none;">
-    <div class="summary-row">
-      <span class="summary-label">Materials</span>
-      <span class="summary-value" id="sumMaterials">—</span>
-    </div>
-    <div class="summary-row">
-      <span class="summary-label">Labour</span>
-      <span class="summary-value" id="sumLabour">—</span>
-    </div>
-    <div class="summary-row admin-only">
-      <span class="summary-label">Cost price</span>
-      <span class="summary-value" id="sumCost">—</span>
-    </div>
-    <div class="summary-row admin-only">
-      <span class="summary-label">Markup</span>
-      <span class="summary-value" id="sumMarkup">—</span>
-    </div>
-    <div class="summary-row total">
-      <span>Total</span>
-      <span class="summary-value" id="sumTotal">—</span>
-    </div>
-  </div>
-</main>
+</div>
 
 <script>
 const API = "https://materials-parser-api.onrender.com";
+const AUTO_SAVE_KEY = "calc_autosave";
 let products = [], headers = [], materials = [], isAdmin = false;
+let autosaveTimer = null;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
-  await Promise.all([loadProducts(), loadMaterials()]);
+  await Promise.all([loadProducts(), loadMaterials(), loadTemplates()]);
 }
 
 async function loadProducts() {
@@ -283,24 +311,15 @@ function populateProductSelect() {
 }
 
 // ── TYPE MAPPING ──────────────────────────────────────────────────────────────
-// First word of header determines material type (case-insensitive)
 function getTypeFromHeader(h) {
   const first = h.split(/[\s:]/)[0].toLowerCase();
-  const map = {
-    fabric: "Fabric",
-    foam: "Foam",
-    webbing: "Webbing",
-    zipper: "Zipper",
-    furniture: "Furniture",
-    binding: "Binding",
-  };
+  const map = { fabric:"Fabric", foam:"Foam", webbing:"Webbing", zipper:"Zipper", furniture:"Furniture", binding:"Binding" };
   return map[first] || null;
 }
 
 function filterMaterialsByHeader(h) {
   const type = getTypeFromHeader(h);
-  if (!type) return materials;
-  return materials.filter(m => m.type === type);
+  return type ? materials.filter(m => m.type === type) : materials;
 }
 
 // ── PRODUCT CHANGE ────────────────────────────────────────────────────────────
@@ -313,15 +332,99 @@ function onProductChange() {
   }
   renderPositions(products[idx]);
   document.getElementById("summary").style.display = "block";
+  onAnyChange();
+}
+
+// ── AUTOSAVE ──────────────────────────────────────────────────────────────────
+function onAnyChange() {
   recalc();
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    autoSave();
+  }, 1000);
+}
+
+function autoSave() {
+  const state = collectState();
+  localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(state));
+  const dot = document.getElementById("autosaveDot");
+  dot.classList.add("saved");
+  setTimeout(() => dot.classList.remove("saved"), 1500);
+}
+
+function collectState() {
+  const state = {
+    qty: document.getElementById("qty").value,
+    productIdx: document.getElementById("productSelect").value,
+    productName: "",
+    rate: document.getElementById("hourlyRate").value,
+    positions: []
+  };
+  const pidx = parseInt(state.productIdx);
+  if (!isNaN(pidx) && products[pidx]) {
+    state.productName = products[pidx][headers[0]] || "";
+  }
+  document.querySelectorAll(".position-card").forEach(card => {
+    const matInput = card.querySelector(".mat-search-input");
+    const colorSel = card.querySelector(".color-select");
+    const optSel = card.querySelector(".opt-select");
+    const mi = parseInt(matInput?.dataset.selectedIdx);
+    const mat = isNaN(mi) ? null : materials[mi];
+    state.positions.push({
+      header: card.dataset.header,
+      matUrl: mat?.url || "",
+      matTitle: matInput?.value || "",
+      colorIdx: colorSel?.value || "",
+      optVal: optSel?.value || ""
+    });
+  });
+  return state;
+}
+
+function restoreFromState(state) {
+  if (!state) return;
+  if (state.rate) document.getElementById("hourlyRate").value = state.rate;
+  if (state.qty) document.getElementById("qty").value = state.qty;
+  if (state.productIdx !== undefined && state.productIdx !== "") {
+    const sel = document.getElementById("productSelect");
+    sel.value = state.productIdx;
+    const idx = parseInt(state.productIdx);
+    if (!isNaN(idx) && products[idx]) {
+      renderPositions(products[idx]);
+      document.getElementById("summary").style.display = "block";
+    }
+    setTimeout(() => {
+      document.querySelectorAll(".position-card").forEach(card => {
+        const saved = state.positions?.find(p => p.header === card.dataset.header);
+        if (!saved || !saved.matUrl) return;
+        const mat = materials.find(m => m.url === saved.matUrl);
+        if (!mat) return;
+        const mi = materials.indexOf(mat);
+        const matInput = card.querySelector(".mat-search-input");
+        const colorSel = card.querySelector(".color-select");
+        const optSel = card.querySelector(".opt-select");
+        const img = card.querySelector("img");
+        const priceEl = card.querySelector(".position-price");
+        matInput.dataset.selectedIdx = mi;
+        matInput.value = saved.matTitle || mat.title || "";
+        onMatSelected(mi, img, colorSel, optSel, priceEl, parseFloat(card.dataset.qty));
+        if (saved.colorIdx !== "" && colorSel) {
+          colorSel.value = saved.colorIdx;
+          const c = (mat.colors || [])[parseInt(saved.colorIdx)];
+          if (c?.image && img) img.src = c.image;
+          updateColorSelectStyle(colorSel, mat);
+        }
+        if (saved.optVal && optSel) optSel.value = saved.optVal;
+      });
+      recalc();
+    }, 100);
+  }
 }
 
 // ── RENDER POSITIONS ──────────────────────────────────────────────────────────
 function renderPositions(product) {
   const container = document.getElementById("positions");
   container.innerHTML = "";
-
-  // All headers except first (name) and last (working hours)
   const posHeaders = headers.slice(1, -1);
 
   posHeaders.forEach(h => {
@@ -333,17 +436,14 @@ function renderPositions(product) {
     card.dataset.header = h;
     card.dataset.qty = posQty;
 
-    // Label
     const label = document.createElement("div");
     label.className = "position-label";
     label.textContent = h;
 
-    // Qty
     const qtyEl = document.createElement("div");
     qtyEl.className = "position-qty";
     qtyEl.textContent = `× ${posQty}`;
 
-    // Thumbnail wrapper with placeholder
     const thumbWrap = document.createElement("div");
     thumbWrap.className = "position-thumb-wrap";
     const img = document.createElement("img");
@@ -356,19 +456,16 @@ function renderPositions(product) {
     thumbWrap.appendChild(img);
     thumbWrap.appendChild(placeholder);
 
-    // Selects container
     const selects = document.createElement("div");
     selects.className = "position-selects";
 
-    // Price
     const priceEl = document.createElement("div");
     priceEl.className = "position-price na";
     priceEl.textContent = "—";
 
-    // Filtered materials for this header
     const filtered = filterMaterialsByHeader(h);
 
-    // ── Searchable material dropdown ──────────────────────────────────────────
+    // Searchable dropdown
     const matWrap = document.createElement("div");
     matWrap.className = "mat-dropdown-wrap";
 
@@ -381,7 +478,6 @@ function renderPositions(product) {
     const matList = document.createElement("div");
     matList.className = "mat-dropdown-list";
 
-    // Search box inside dropdown
     const searchBox = document.createElement("div");
     searchBox.className = "mat-search-box";
     const searchInput = document.createElement("input");
@@ -390,15 +486,23 @@ function renderPositions(product) {
     searchBox.appendChild(searchInput);
     matList.appendChild(searchBox);
 
-    // Options container
     const optionsContainer = document.createElement("div");
     matList.appendChild(optionsContainer);
+
+    const colorSel = document.createElement("select");
+    colorSel.className = "color-select";
+    colorSel.innerHTML = '<option value="">— color —</option>';
+    colorSel.style.display = "none";
+
+    const optSel = document.createElement("select");
+    optSel.className = "opt-select";
+    optSel.innerHTML = '<option value="">— option —</option>';
+    optSel.style.display = "none";
 
     function buildOptions(query) {
       optionsContainer.innerHTML = "";
       const q = query.toLowerCase();
       const results = filtered.filter(m => !q || (m.title || "").toLowerCase().includes(q));
-
       if (!results.length) {
         const no = document.createElement("div");
         no.className = "mat-option no-results";
@@ -406,7 +510,6 @@ function renderPositions(product) {
         optionsContainer.appendChild(no);
         return;
       }
-
       results.forEach(m => {
         const realIdx = materials.indexOf(m);
         const opt = document.createElement("div");
@@ -418,7 +521,7 @@ function renderPositions(product) {
           matInput.value = m.title || m.url;
           matList.classList.remove("open");
           onMatSelected(realIdx, img, colorSel, optSel, priceEl, posQty);
-          recalc();
+          onAnyChange();
         };
         optionsContainer.appendChild(opt);
       });
@@ -433,39 +536,25 @@ function renderPositions(product) {
         setTimeout(() => searchInput.focus(), 50);
       }
     };
-
     searchInput.oninput = () => buildOptions(searchInput.value);
     searchInput.onclick = (e) => e.stopPropagation();
-
     document.addEventListener("click", (e) => {
       if (!matWrap.contains(e.target)) matList.classList.remove("open");
-    }, { capture: false });
+    });
 
-    matWrap.appendChild(matInput);
-    matWrap.appendChild(matList);
-
-    // Color select
-    const colorSel = document.createElement("select");
-    colorSel.className = "color-select";
-    colorSel.innerHTML = '<option value="">— color —</option>';
-    colorSel.style.display = "none";
     colorSel.onchange = () => {
       const mi = parseInt(matInput.dataset.selectedIdx);
       const mat = isNaN(mi) ? null : materials[mi];
       if (!mat) return;
       const c = (mat.colors || [])[parseInt(colorSel.value)];
-      if (c?.image) { img.src = c.image; }
+      if (c?.image) img.src = c.image;
       updateColorSelectStyle(colorSel, mat);
-      recalc();
+      onAnyChange();
     };
+    optSel.onchange = onAnyChange;
 
-    // Option select
-    const optSel = document.createElement("select");
-    optSel.className = "opt-select";
-    optSel.innerHTML = '<option value="">— option —</option>';
-    optSel.style.display = "none";
-    optSel.onchange = recalc;
-
+    matWrap.appendChild(matInput);
+    matWrap.appendChild(matList);
     selects.appendChild(matWrap);
     selects.appendChild(colorSel);
     selects.appendChild(optSel);
@@ -475,7 +564,6 @@ function renderPositions(product) {
     card.appendChild(thumbWrap);
     card.appendChild(selects);
     card.appendChild(priceEl);
-
     container.appendChild(card);
   });
 
@@ -486,16 +574,12 @@ function renderPositions(product) {
 
 function onMatSelected(mi, img, colorSel, optSel, priceEl, posQty) {
   const mat = isNaN(mi) ? null : materials[mi];
-
-  // Reset
   colorSel.innerHTML = '<option value="">— color —</option>';
   colorSel.style.display = "none";
   optSel.innerHTML = '<option value="">— option —</option>';
   optSel.style.display = "none";
-  img.classList.remove("loaded");
-  img.src = "";
+  img.classList.remove("loaded"); img.src = "";
   priceEl.textContent = "—"; priceEl.className = "position-price na";
-
   if (!mat) return;
 
   const colors = mat.colors || [];
@@ -541,22 +625,14 @@ function recalc() {
     const mi = parseInt(matInput?.dataset.selectedIdx);
     const mat = isNaN(mi) ? null : materials[mi];
     const priceEl = card.querySelector(".position-price");
-
     let price = 0;
     if (mat) {
-      // Try price from selected color
       const ci = parseInt(colorSel?.value);
       const color = !isNaN(ci) ? (mat.colors || [])[ci] : null;
-      if (color?.price_per_unit) {
-        price = color.price_per_unit;
-      } else {
-        price = parsePrice(mat.price || "");
-      }
+      price = color?.price_per_unit || parsePrice(mat.price || "");
     }
-
     const lineTotal = price * posQty * qty;
     matTotal += lineTotal;
-
     if (priceEl) {
       priceEl.textContent = mat && price ? `${lineTotal.toFixed(2)} EUR` : "—";
       priceEl.className = "position-price" + (mat && price ? "" : " na");
@@ -570,7 +646,6 @@ function recalc() {
 
   document.getElementById("sumMaterials").textContent = `${matTotal.toFixed(2)} EUR`;
   document.getElementById("sumLabour").textContent = `${labourTotal.toFixed(2)} EUR`;
-
   if (isAdmin) {
     document.getElementById("sumCost").textContent = `${costTotal.toFixed(2)} EUR`;
     document.getElementById("sumMarkup").textContent = `${markupAmt.toFixed(2)} EUR (+${markupPct}%)`;
@@ -586,6 +661,92 @@ function parsePrice(str) {
   return m ? parseFloat(m[0]) : 0;
 }
 
+// ── OUT OF STOCK ──────────────────────────────────────────────────────────────
+function updateColorSelectStyle(colorSel, mat) {
+  const ci = parseInt(colorSel.value);
+  const color = !isNaN(ci) ? (mat?.colors || [])[ci] : null;
+  const inStock = !color || !color.availability || color.availability === "In stock";
+  colorSel.classList.toggle("out-of-stock", !inStock);
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+async function loadTemplates() {
+  try {
+    const res = await fetch(`${API}/templates`);
+    if (!res.ok) return;
+    const templates = await res.json();
+    renderTemplates(templates);
+  } catch(e) { console.warn("loadTemplates failed", e); }
+}
+
+function renderTemplates(templates) {
+  const sidebar = document.getElementById("templatesSidebar");
+  const empty = document.getElementById("templatesEmpty");
+  // Remove old cards
+  sidebar.querySelectorAll(".template-card").forEach(el => el.remove());
+
+  if (!templates || templates.length === 0) {
+    empty.style.display = "";
+    return;
+  }
+  empty.style.display = "none";
+
+  templates.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "template-card";
+
+    const name = document.createElement("div");
+    name.className = "template-name";
+    name.textContent = t.name;
+
+    const meta = document.createElement("div");
+    meta.className = "template-meta";
+    meta.textContent = `qty: ${t.qty || 1}`;
+
+    const del = document.createElement("button");
+    del.className = "template-delete";
+    del.textContent = "×";
+    del.title = "Delete template";
+    del.onclick = async (e) => {
+      e.stopPropagation();
+      await deleteTemplate(t.name);
+    };
+
+    card.appendChild(name);
+    card.appendChild(meta);
+    card.appendChild(del);
+    card.onclick = () => loadTemplate(t);
+    sidebar.appendChild(card);
+  });
+}
+
+async function saveTemplate() {
+  const state = collectState();
+  if (!state.productName) { alert("Select a product first"); return; }
+  try {
+    const res = await fetch(`${API}/templates`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(state)
+    });
+    if (!res.ok) throw new Error("Save failed");
+    await loadTemplates();
+  } catch(e) { console.error("saveTemplate failed", e); }
+}
+
+async function deleteTemplate(name) {
+  try {
+    await fetch(`${API}/templates/${encodeURIComponent(name)}`, { method: "DELETE" });
+    await loadTemplates();
+  } catch(e) { console.error("deleteTemplate failed", e); }
+}
+
+function loadTemplate(t) {
+  try {
+    const state = typeof t.state === "string" ? JSON.parse(t.state) : t;
+    restoreFromState(state);
+  } catch(e) { console.warn("loadTemplate failed", e); }
+}
+
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 function handleLogin() {
   isAdmin = !isAdmin;
@@ -594,86 +755,13 @@ function handleLogin() {
   recalc();
 }
 
-// ── OUT OF STOCK COLOR HIGHLIGHT ─────────────────────────────────────────────
-function updateColorSelectStyle(colorSel, mat) {
-  const ci = parseInt(colorSel.value);
-  const color = !isNaN(ci) ? (mat?.colors || [])[ci] : null;
-  const inStock = !color || !color.availability || color.availability === "In stock";
-  colorSel.classList.toggle("out-of-stock", !inStock);
-}
-
-// ── SAVE / RESTORE STATE ──────────────────────────────────────────────────────
-const SAVE_KEY = "calc_state";
-
-function saveState() {
-  const state = {
-    qty: document.getElementById("qty").value,
-    productIdx: document.getElementById("productSelect").value,
-    rate: document.getElementById("hourlyRate").value,
-    positions: []
-  };
-  document.querySelectorAll(".position-card").forEach(card => {
-    const matInput = card.querySelector(".mat-search-input");
-    const colorSel = card.querySelector(".color-select");
-    const optSel = card.querySelector(".opt-select");
-    state.positions.push({
-      header: card.dataset.header,
-      matIdx: matInput?.dataset.selectedIdx || "",
-      matTitle: matInput?.value || "",
-      colorIdx: colorSel?.value || "",
-      optVal: optSel?.value || ""
-    });
-  });
-  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-  const hint = document.getElementById("saveHint");
-  const btn = document.getElementById("saveBtn");
-  hint.textContent = "Saved ✓";
-  btn.classList.add("saved");
-  setTimeout(() => { hint.textContent = ""; btn.classList.remove("saved"); }, 2000);
-}
-
-function restoreState() {
-  const raw = localStorage.getItem(SAVE_KEY);
-  if (!raw) return;
-  try {
-    const state = JSON.parse(raw);
-    if (state.rate) document.getElementById("hourlyRate").value = state.rate;
-    if (state.qty) document.getElementById("qty").value = state.qty;
-    if (state.productIdx !== undefined && state.productIdx !== "") {
-      const sel = document.getElementById("productSelect");
-      sel.value = state.productIdx;
-      onProductChange();
-      // After positions rendered, restore each position
-      setTimeout(() => {
-        const cards = document.querySelectorAll(".position-card");
-        cards.forEach(card => {
-          const saved = state.positions.find(p => p.header === card.dataset.header);
-          if (!saved || saved.matIdx === "") return;
-          const matInput = card.querySelector(".mat-search-input");
-          const colorSel = card.querySelector(".color-select");
-          const optSel = card.querySelector(".opt-select");
-          const mi = parseInt(saved.matIdx);
-          const mat = isNaN(mi) ? null : materials[mi];
-          if (!mat) return;
-          matInput.dataset.selectedIdx = saved.matIdx;
-          matInput.value = saved.matTitle || mat.title || "";
-          const img = card.querySelector("img");
-          onMatSelected(mi, img, colorSel, optSel, card.querySelector(".position-price"), parseFloat(card.dataset.qty));
-          if (saved.colorIdx !== "" && colorSel) {
-            colorSel.value = saved.colorIdx;
-            const c = (mat.colors || [])[parseInt(saved.colorIdx)];
-            if (c?.image && img) img.src = c.image;
-            updateColorSelectStyle(colorSel, mat);
-          }
-          if (saved.optVal && optSel) optSel.value = saved.optVal;
-        });
-        recalc();
-      }, 100);
-    }
-  } catch(e) { console.warn("restoreState failed", e); }
-}
-
-(async () => { await init(); restoreState(); })();
+// ── START ─────────────────────────────────────────────────────────────────────
+(async () => {
+  await init();
+  // Restore autosave
+  const raw = localStorage.getItem(AUTO_SAVE_KEY);
+  if (raw) { try { restoreFromState(JSON.parse(raw)); } catch(e) {} }
+})();
 </script>
 </body>
 </html>
