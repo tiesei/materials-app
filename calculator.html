@@ -141,7 +141,12 @@
     background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
     transition: border-color 0.15s, color 0.15s;
   }
-  select.color-select.out-of-stock { border-color: #c0392b; color: #c0392b; }
+  select.color-select.out-of-stock { border-color: #c0392b; }
+  select.color-select.out-of-stock::after { color: #c0392b; }
+  /* Only color the select text, not options */
+  select.color-select.out-of-stock { color: #c0392b; }
+  select.color-select.out-of-stock option { color: var(--text); }
+  select.color-select.out-of-stock option[data-out="1"] { color: #c0392b; }
 
   .position-price {
     font-family: var(--mono); font-size: 13px; text-align: right; min-width: 90px; flex-shrink: 0;
@@ -204,9 +209,6 @@
     <select class="product-select" id="productSelect" onchange="onProductChange()">
       <option value="">— select product —</option>
     </select>
-  </div>
-
-  <div class="save-bar">
     <button class="btn-save" id="saveBtn" onclick="saveState()">Save</button>
     <span class="save-hint" id="saveHint"></span>
   </div>
@@ -503,7 +505,7 @@ function onMatSelected(mi, img, colorSel, optSel, priceEl, posQty) {
       o.value = ci;
       const inStock = !c.availability || c.availability === "In stock";
       o.textContent = (c.name || `Color ${ci+1}`) + (inStock ? "" : " (out of stock)");
-      if (!inStock) o.style.color = "#c0392b";
+      if (!inStock) { o.style.color = "#c0392b"; o.dataset.out = "1"; }
       colorSel.appendChild(o);
     });
     colorSel.style.display = "block";
@@ -671,7 +673,7 @@ function restoreState() {
   } catch(e) { console.warn("restoreState failed", e); }
 }
 
-init().then(restoreState);
+(async () => { await init(); restoreState(); })();
 </script>
 </body>
 </html>
