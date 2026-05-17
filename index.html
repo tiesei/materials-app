@@ -27,7 +27,22 @@
     padding: 0 0.75rem; display: flex; align-items: center; gap: 0.5rem;
     height: 48px; position: sticky; top: 0; z-index: 100;
   }
-  .nav-brand { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); letter-spacing: 0.05em; text-decoration: none; }
+
+  .nav-brand {
+    display: flex; flex-direction: column; align-items: flex-start;
+    text-decoration: none; gap: 0; line-height: 1; flex-shrink: 0;
+    padding: 2px 0;
+  }
+  .nav-brand img {
+    height: 26px; width: auto; display: block;
+  }
+  .nav-brand-sub {
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    color: var(--text-muted); letter-spacing: 0.12em;
+    text-transform: lowercase; line-height: 1; margin-top: 1px;
+    padding-left: 1px;
+  }
+
   .nav-links { display: flex; }
   .nav-links a {
     font-size: 13px; color: var(--text-muted); text-decoration: none;
@@ -120,7 +135,6 @@
   th.sort-asc::after { content: " ↑"; color: var(--accent); }
   th.sort-desc::after { content: " ↓"; color: var(--accent); }
 
-  /* Column widths */
   th.col-type    { width: 90px; }
   th.col-photo   { width: 88px; }
   th.col-title   { width: 200px; }
@@ -159,20 +173,11 @@
     50% { box-shadow: 0 0 0 3px rgba(192,57,43,0.15); }
   }
 
-  .title-text {
-    font-weight: 500; font-size: 13px; line-height: 1.4;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .title-link {
-    font-family: var(--mono); font-size: 11px; color: var(--accent);
-    text-decoration: none; display: inline-block; margin-top: 4px; opacity: 0.75;
-  }
+  .title-text { font-weight: 500; font-size: 13px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .title-link { font-family: var(--mono); font-size: 11px; color: var(--accent); text-decoration: none; display: inline-block; margin-top: 4px; opacity: 0.75; }
   .title-link:hover { opacity: 1; text-decoration: underline; }
 
-  .desc-text {
-    font-size: 12px; color: var(--text-muted); line-height: 1.4;
-    overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-  }
+  .desc-text { font-size: 12px; color: var(--text-muted); line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
   textarea.notes {
     font-family: var(--sans); font-size: 12px; background: var(--bg); border: 1px solid var(--border);
@@ -209,12 +214,69 @@
     th.col-desc, td.col-desc { display: none; }
     .thumb { width: 56px; height: 56px; }
   }
+
+  /* ── INTRO OVERLAY ─────────────────────────────────────────────────────── */
+  #intro-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(10, 12, 20, 0.96);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+  }
+  #intro-overlay.fade-out { opacity: 0; }
+  #intro-overlay.hidden { display: none; }
+
+  #intro-logo {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    opacity: 0;
+  }
+  #intro-logo img {
+    height: 72px; width: auto;
+    filter: drop-shadow(0 0 12px rgba(180,200,255,0.4));
+  }
+  #intro-logo-sub {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+    color: rgba(200, 210, 240, 0.85); text-transform: lowercase;
+  }
+
+  @keyframes glitch-flicker {
+    0%   { opacity: 0; transform: translate(0,0); }
+    5%   { opacity: 1; transform: translate(-2px, 1px); }
+    6%   { opacity: 0; transform: translate(0,0); }
+    10%  { opacity: 0; }
+    11%  { opacity: 1; transform: translate(3px, -1px); }
+    12%  { opacity: 0.3; transform: translate(-1px, 0); }
+    13%  { opacity: 1; transform: translate(0,0); }
+    30%  { opacity: 1; transform: translate(0,0); }
+    31%  { opacity: 0.2; transform: translate(2px, 0); }
+    32%  { opacity: 1; transform: translate(0,0); }
+    55%  { opacity: 1; transform: translate(0,0); }
+    56%  { opacity: 0; }
+    57%  { opacity: 1; transform: translate(-1px, 1px); }
+    58%  { opacity: 1; transform: translate(0,0); }
+    100% { opacity: 1; transform: translate(0,0); }
+  }
+
+  .glitch-active {
+    animation: glitch-flicker 1.6s steps(1) forwards;
+  }
 </style>
 </head>
 <body>
 
+<!-- INTRO OVERLAY -->
+<div id="intro-overlay" class="hidden">
+  <div id="intro-logo">
+    <img src="logo.png" alt="smysl makes">
+    <div id="intro-logo-sub">makes</div>
+  </div>
+</div>
+
 <nav>
-  <span class="nav-brand">⬡ atelier</span>
+  <a href="index.html" class="nav-brand">
+    <img src="logo.png" alt="smysl makes">
+    <span class="nav-brand-sub">makes</span>
+  </a>
   <div class="nav-links">
     <a href="index.html" class="active">Materials</a>
     <a href="products.html">Products</a>
@@ -263,6 +325,33 @@
 </main>
 
 <script>
+// ── INTRO ANIMATION ───────────────────────────────────────────────────────────
+(function() {
+  const VISIT_KEY = "smysl_last_visit";
+  const THRESHOLD = 30 * 60 * 1000;
+  const now = Date.now();
+  const last = parseInt(localStorage.getItem(VISIT_KEY) || "0");
+  localStorage.setItem(VISIT_KEY, now);
+
+  if (now - last > THRESHOLD) {
+    const overlay = document.getElementById("intro-overlay");
+    const logo = document.getElementById("intro-logo");
+    overlay.classList.remove("hidden");
+
+    setTimeout(() => {
+      logo.classList.add("glitch-active");
+    }, 200);
+
+    setTimeout(() => {
+      overlay.classList.add("fade-out");
+    }, 2200);
+
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+    }, 3500);
+  }
+})();
+
 const API = "https://materials-parser-api.onrender.com";
 const TYPES = ["Fabric", "Foam", "Webbing", "Zipper", "Furniture", "Binding"];
 
@@ -271,7 +360,6 @@ let activeTypes = new Set();
 let sortCol = "";
 let sortDir = 1;
 
-// ── STATUS ────────────────────────────────────────────────────────────────────
 function setStatus(msg, type = "") {
   const bar = document.getElementById("statusBar");
   bar.className = "status-bar" + (type ? " " + type : "");
@@ -282,7 +370,6 @@ function clearStatus() {
   bar.innerHTML = ""; bar.className = "status-bar";
 }
 
-// ── TYPE FILTER ───────────────────────────────────────────────────────────────
 function buildTypeDropdown() {
   const dd = document.getElementById("typeDropdown");
   dd.innerHTML = "";
@@ -324,7 +411,6 @@ document.addEventListener("click", e => {
     document.getElementById("typeDropdown").classList.remove("open");
 });
 
-// ── SORT ──────────────────────────────────────────────────────────────────────
 function initSortHeaders() {
   document.querySelectorAll("th.sortable").forEach(th => {
     th.addEventListener("click", () => {
@@ -353,7 +439,6 @@ function getSortVal(item, col) {
   return "";
 }
 
-// ── RENDER ROW ────────────────────────────────────────────────────────────────
 function renderRow(item, idx) {
   const colors = Array.isArray(item.colors) ? item.colors : [];
   const variants = Array.isArray(item.variants) ? item.variants : [];
@@ -361,7 +446,6 @@ function renderRow(item, idx) {
 
   const tr = document.createElement("tr");
 
-  // TYPE
   const tdType = document.createElement("td");
   tdType.className = "col-type";
   const typeSel = document.createElement("select");
@@ -382,7 +466,6 @@ function renderRow(item, idx) {
   };
   tdType.appendChild(typeSel);
 
-  // PHOTO
   const tdPhoto = document.createElement("td");
   tdPhoto.className = "col-photo";
   const img = document.createElement("img");
@@ -393,7 +476,6 @@ function renderRow(item, idx) {
   img.onclick = () => img.classList.toggle("expanded");
   tdPhoto.appendChild(img);
 
-  // TITLE + link
   const tdTitle = document.createElement("td");
   tdTitle.className = "col-title";
   const titleDiv = document.createElement("div");
@@ -409,7 +491,6 @@ function renderRow(item, idx) {
     tdTitle.appendChild(link);
   }
 
-  // DESC
   const tdDesc = document.createElement("td");
   tdDesc.className = "col-desc";
   const descDiv = document.createElement("div");
@@ -417,7 +498,6 @@ function renderRow(item, idx) {
   descDiv.textContent = item.description || "";
   tdDesc.appendChild(descDiv);
 
-  // NOTES — saved to Sheets, debounced 1.5s
   const tdNotes = document.createElement("td");
   tdNotes.className = "col-notes";
   const ta = document.createElement("textarea");
@@ -438,16 +518,13 @@ function renderRow(item, idx) {
   };
   tdNotes.appendChild(ta);
 
-  // COLORS
   const tdColors = document.createElement("td");
   tdColors.className = "col-colors";
 
-  // WEIGHT
   const tdWeight = document.createElement("td");
   tdWeight.className = "mono-cell col-weight";
   tdWeight.textContent = item.weight || "—";
 
-  // PRICE
   const tdPrice = document.createElement("td");
   tdPrice.className = "mono-cell col-price";
   const initP = colors[0]?.price_per_unit;
@@ -455,7 +532,6 @@ function renderRow(item, idx) {
     ? initP.toFixed(2).replace(".", ",") + " EUR"
     : (item.price || "—");
 
-  // color select
   if (colors.length > 0) {
     const colorSel = document.createElement("select");
     colorSel.className = "color-select";
@@ -491,7 +567,6 @@ function renderRow(item, idx) {
     tdColors.innerHTML = `<span style="color:var(--text-muted);font-size:12px;">—</span>`;
   }
 
-  // REPARSE
   const tdAction = document.createElement("td");
   tdAction.className = "col-action";
   const repBtn = document.createElement("button");
@@ -503,7 +578,6 @@ function renderRow(item, idx) {
   return tr;
 }
 
-// ── RENDER TABLE ──────────────────────────────────────────────────────────────
 function renderTable() {
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
@@ -529,7 +603,6 @@ function renderTable() {
   data.forEach((item, i) => tbody.appendChild(renderRow(item, i)));
 }
 
-// ── LOAD ──────────────────────────────────────────────────────────────────────
 async function loadMaterials() {
   setStatus("Loading…", "loading");
   try {
@@ -544,7 +617,6 @@ async function loadMaterials() {
   }
 }
 
-// ── ADD ───────────────────────────────────────────────────────────────────────
 async function addMaterial() {
   const input = document.getElementById("urlInput");
   const url = input.value.trim();
@@ -573,7 +645,6 @@ async function addMaterial() {
   }
 }
 
-// ── REPARSE ───────────────────────────────────────────────────────────────────
 async function reparseMaterial(url, btn) {
   if (!url) return;
   btn.classList.add("spinning");
@@ -597,7 +668,6 @@ async function reparseMaterial(url, btn) {
   }
 }
 
-// ── SAVE TYPE ─────────────────────────────────────────────────────────────────
 async function saveType(url, type) {
   if (!url) return;
   try {
@@ -608,7 +678,6 @@ async function saveType(url, type) {
   } catch(e) { console.warn("saveType failed", e); }
 }
 
-// ── SAVE NOTE ─────────────────────────────────────────────────────────────────
 async function saveNote(url, note) {
   if (!url) return;
   try {
