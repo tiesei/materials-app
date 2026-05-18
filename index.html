@@ -25,7 +25,7 @@
   nav {
     background: var(--surface); border-bottom: 1px solid var(--border);
     padding: 0 0.75rem; display: flex; align-items: center; gap: 0.5rem;
-    height: 60px; position: sticky; top: 0; z-index: 100;
+    height: 60px; position: sticky; top: 0; z-index: 9999;
   }
 
   .nav-brand {
@@ -37,7 +37,7 @@
     width: 50px; height: auto; display: block;
   }
   .nav-brand-sub {
-    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
     color: var(--text-muted); letter-spacing: 0.08em;
     text-transform: lowercase; line-height: 1; margin-top: 2px;
     width: 50px; text-align: center;
@@ -240,49 +240,24 @@
 
   /* ── INTRO OVERLAY ─────────────────────────────────────────────────────── */
   #intro-overlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: rgba(10, 12, 20, 0.96);
-    display: flex; align-items: center; justify-content: center;
+    position: fixed; inset: 0; z-index: 9998;
     pointer-events: none;
-    transition: opacity 1.2s ease;
+    /* radial mask expanding from top-left where logo sits */
+    background: rgba(10, 12, 20, 0.96);
+    -webkit-mask-image: radial-gradient(circle at 40px 30px, transparent 0%, transparent 0%, black 0%);
+    mask-image: radial-gradient(circle at 40px 30px, transparent 0%, transparent 0%, black 0%);
+    transition: none;
   }
-  #intro-overlay.fade-out { opacity: 0; }
   #intro-overlay.hidden { display: none; }
-
-  #intro-logo {
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    opacity: 0;
+  #intro-overlay.reveal {
+    transition: -webkit-mask-image 1.8s cubic-bezier(0.4, 0, 0.2, 1),
+                mask-image 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-mask-image: radial-gradient(circle at 40px 30px, transparent 55%, rgba(0,0,0,0.0) 60%, black 80%);
+    mask-image: radial-gradient(circle at 40px 30px, transparent 55%, rgba(0,0,0,0.0) 60%, black 80%);
   }
-  #intro-logo img {
-    width: 80px; height: auto;
-    filter: drop-shadow(0 0 16px rgba(220, 180, 100, 0.6));
-  }
-  #intro-logo-sub {
-    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
-    color: rgba(220, 180, 100, 0.85); text-transform: lowercase;
-    width: 80px; text-align: center;
-  }
-
-  @keyframes overlay-glitch {
-    0%   { opacity: 0; transform: translate(0,0); }
-    5%   { opacity: 1; transform: translate(-3px, 1px); }
-    6%   { opacity: 0; }
-    10%  { opacity: 0; }
-    11%  { opacity: 1; transform: translate(3px, -1px); }
-    12%  { opacity: 0.3; transform: translate(-1px, 0); }
-    13%  { opacity: 1; transform: translate(0,0); }
-    30%  { opacity: 1; }
-    31%  { opacity: 0.2; transform: translate(2px, 0); }
-    32%  { opacity: 1; transform: translate(0,0); }
-    55%  { opacity: 1; }
-    56%  { opacity: 0; }
-    57%  { opacity: 1; transform: translate(-1px, 1px); }
-    58%  { opacity: 1; transform: translate(0,0); }
-    100% { opacity: 1; transform: translate(0,0); }
-  }
-
-  .glitch-active {
-    animation: overlay-glitch 1.6s steps(1) forwards;
+  #intro-overlay.reveal-full {
+    -webkit-mask-image: radial-gradient(circle at 40px 30px, transparent 200%, black 201%);
+    mask-image: radial-gradient(circle at 40px 30px, transparent 200%, black 201%);
   }
 </style>
 </head>
@@ -290,12 +265,7 @@
 
 
 <!-- INTRO OVERLAY -->
-<div id="intro-overlay" class="hidden">
-  <div id="intro-logo">
-    <img src="logo.png" alt="smysl makes">
-    <div id="intro-logo-sub">makes</div>
-  </div>
-</div>
+<div id="intro-overlay" class="hidden"></div>
 
 <nav>
   <a href="index.html" class="nav-brand">
@@ -360,29 +330,29 @@
 
   if (now - last > THRESHOLD) {
     const overlay = document.getElementById("intro-overlay");
-    const logo = document.getElementById("intro-logo");
     const brand = document.querySelector(".nav-brand");
 
-    // Show overlay
+    // Show overlay (dark plane, no centered logo)
     overlay.classList.remove("hidden");
 
-    // Glitch logo in overlay
-    setTimeout(() => { logo.classList.add("glitch-active"); }, 200);
-
-    // Also glitch nav brand simultaneously
+    // Glitch nav brand in place (top-left)
     if (brand) {
       brand.style.opacity = "0";
       setTimeout(() => {
         brand.style.opacity = "";
         brand.classList.add("glitch-run");
-      }, 200);
+      }, 300);
     }
 
-    // Fade out overlay
-    setTimeout(() => { overlay.classList.add("fade-out"); }, 2200);
+    // After glitch settles, start radial reveal from logo position
+    setTimeout(() => {
+      overlay.classList.add("reveal");
+    }, 2200);
 
-    // Hide overlay
-    setTimeout(() => { overlay.classList.add("hidden"); }, 3500);
+    // Finish and hide
+    setTimeout(() => {
+      overlay.classList.add("hidden");
+    }, 5000);
   }
 })();
 
