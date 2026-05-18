@@ -52,8 +52,8 @@
   .sign-in-btn { font-size: 11px; padding: 3px 8px; background: none; border: 1px solid var(--border); border-radius: 5px; cursor: pointer; color: var(--text-muted); font-family: var(--sans); }
 
   /* LAYOUT: sidebar for templates */
-  .page-layout { display: flex; gap: 0.75rem; padding: 0.75rem; align-items: flex-start; min-width: 0; }
-  .calc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .page-layout { display: flex; gap: 0.5rem; padding: 0.5rem; align-items: flex-start; min-width: 0; }
+  .calc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.75rem; max-width: 700px; }
 
   /* TEMPLATES SIDEBAR */
   .templates-sidebar {
@@ -202,92 +202,16 @@
 
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 13px; }
 
-  @media (max-width: 800px) {
-    .templates-sidebar { width: 120px; }
-    .position-label { width: 100%; }
+  @media (max-width: 600px) {
+    .templates-sidebar { width: 110px; }
+    .position-label { width: auto; }
+    .position-card { font-size: 11px; }
   }
+
+  
 
   /* ── INTRO OVERLAY ─────────────────────────────────────────────────────── */
-  #intro-overlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: rgba(10, 12, 20, 0.96);
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
-    transition: opacity 1.2s ease;
-  }
-  #intro-overlay.fade-out { opacity: 0; }
-  #intro-overlay.hidden { display: none; }
 
-  #intro-logo {
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    opacity: 0;
-  }
-  #intro-logo img {
-    height: 72px; width: auto;
-    filter: drop-shadow(0 0 12px rgba(180,200,255,0.4));
-  }
-  #intro-logo-sub {
-    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
-    color: rgba(200, 210, 240, 0.85); text-transform: lowercase;
-  }
-
-  @keyframes glitch-flicker {
-    0%   { opacity: 0; transform: translate(0,0); }
-    5%   { opacity: 1; transform: translate(-2px, 1px); }
-    6%   { opacity: 0; transform: translate(0,0); }
-    10%  { opacity: 0; }
-    11%  { opacity: 1; transform: translate(3px, -1px); }
-    12%  { opacity: 0.3; transform: translate(-1px, 0); }
-    13%  { opacity: 1; transform: translate(0,0); }
-    30%  { opacity: 1; transform: translate(0,0); }
-    31%  { opacity: 0.2; transform: translate(2px, 0); }
-    32%  { opacity: 1; transform: translate(0,0); }
-    55%  { opacity: 1; transform: translate(0,0); }
-    56%  { opacity: 0; }
-    57%  { opacity: 1; transform: translate(-1px, 1px); }
-    58%  { opacity: 1; transform: translate(0,0); }
-    100% { opacity: 1; transform: translate(0,0); }
-  }
-
-  .glitch-active {
-    animation: glitch-flicker 1.6s steps(1) forwards;
-  }
-
-  @keyframes nav-glitch {
-    0%   { opacity: 0; transform: translate(0,0); }
-    4%   { opacity: 1; transform: translate(-3px, 0); }
-    5%   { opacity: 0; }
-    9%   { opacity: 0; }
-    10%  { opacity: 1; transform: translate(2px, 1px); }
-    11%  { opacity: 0.2; transform: translate(0,0); }
-    12%  { opacity: 1; }
-    28%  { opacity: 1; transform: translate(0,0); }
-    29%  { opacity: 0.1; transform: translate(-2px,0); }
-    30%  { opacity: 1; transform: translate(0,0); }
-    54%  { opacity: 1; }
-    55%  { opacity: 0; }
-    56%  { opacity: 1; transform: translate(1px,-1px); }
-    57%  { opacity: 1; transform: translate(0,0); }
-    100% { opacity: 1; transform: translate(0,0); }
-  }
-  .nav-brand.glitch-run { animation: nav-glitch 1.8s steps(1) forwards; }
-
-  /* ── INTRO OVERLAY ─────────────────────────────────────────────────────── */
-  #intro-overlay {
-    position: fixed; inset: 0; z-index: 9998;
-    pointer-events: none;
-    background: rgba(10, 12, 20, 0.96);
-    -webkit-mask-image: radial-gradient(circle at 40px 30px, transparent 0%, transparent 0%, black 0%);
-    mask-image: radial-gradient(circle at 40px 30px, transparent 0%, transparent 0%, black 0%);
-    transition: none;
-  }
-  #intro-overlay.hidden { display: none; }
-  #intro-overlay.reveal {
-    transition: -webkit-mask-image 1.8s cubic-bezier(0.4, 0, 0.2, 1),
-                mask-image 1.8s cubic-bezier(0.4, 0, 0.2, 1);
-    -webkit-mask-image: radial-gradient(circle at 40px 30px, transparent 55%, rgba(0,0,0,0.0) 60%, black 80%);
-    mask-image: radial-gradient(circle at 40px 30px, transparent 55%, rgba(0,0,0,0.0) 60%, black 80%);
-  }
 
   .btn-reset {
     font-family: var(--sans); font-size: 12px; font-weight: 500;
@@ -300,9 +224,6 @@
 </style>
 </head>
 <body>
-
-<!-- INTRO OVERLAY -->
-<div id="intro-overlay" class="hidden"></div>
 
 <nav>
   <a href="index.html" class="nav-brand">
@@ -333,6 +254,10 @@
         <input class="field-input" type="number" id="markupPct" value="30" min="0" step="5" oninput="onAnyChange()">
         <span class="field-label">%</span>
       </div>
+      <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
+        <button class="btn-save-tmpl" onclick="saveTemplate()">blues template</button>
+        <button class="btn-reset" onclick="resetCalc()">Reset</button>
+      </div>
     </div>
 
     <div class="product-bar">
@@ -341,8 +266,7 @@
         <option value="">— select product —</option>
       </select>
       <div class="autosave-dot" id="autosaveDot" title="Auto-saved"></div>
-      <button class="btn-save-tmpl" onclick="saveTemplate()">Save template</button>
-      <button class="btn-reset" onclick="resetCalc()" title="Reset current selections">Reset</button>
+
     </div>
 
     <div class="positions" id="positions">
@@ -381,26 +305,7 @@
 </div>
 
 <script>
-// ── INTRO ANIMATION ───────────────────────────────────────────────────────────
-(function() {
-  const VISIT_KEY = "smysl_last_visit";
-  const THRESHOLD = 30 * 60 * 1000; // 30 minutes
-  const now = Date.now();
-  const last = parseInt(localStorage.getItem(VISIT_KEY) || "0");
-  localStorage.setItem(VISIT_KEY, now);
 
-  if (now - last > THRESHOLD) {
-    const overlay = document.getElementById("intro-overlay");
-    const brand = document.querySelector(".nav-brand");
-    overlay.classList.remove("hidden");
-    if (brand) {
-      brand.style.opacity = "0";
-      setTimeout(() => { brand.style.opacity = ""; brand.classList.add("glitch-run"); }, 300);
-    }
-    setTimeout(() => { overlay.classList.add("reveal"); }, 2200);
-    setTimeout(() => { overlay.classList.add("hidden"); }, 5000);
-  }
-})();
 
 const API = "https://materials-parser-api.onrender.com";
 const AUTO_SAVE_KEY = "calc_autosave";
