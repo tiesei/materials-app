@@ -99,13 +99,13 @@
   .qty-input {
     font-family: var(--mono); font-size: 14px; background: var(--bg);
     border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px;
-    color: var(--text); outline: none; width: 64px; text-align: center;
+    color: var(--text); outline: none; width: 64px; text-align: center; height: 34px;
   }
   .qty-input:focus { border-color: var(--accent); }
   select.product-select {
     font-family: var(--sans); font-size: 14px; background: var(--bg);
     border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px;
-    color: var(--text); outline: none; cursor: pointer; flex: 1;
+    color: var(--text); outline: none; cursor: pointer; flex: 1; height: 34px;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
@@ -218,7 +218,7 @@
     background: none; color: #c0392b; border: 1px solid #c0392b;
     border-radius: 6px; padding: 5px 10px; cursor: pointer;
     white-space: nowrap; transition: background 0.15s, color 0.15s;
-    flex-shrink: 0;
+    flex-shrink: 0; height: 34px;
   }
   .btn-reset:hover { background: #fdf0ee; }
 
@@ -233,16 +233,25 @@
     text-align: center;
   }
   .template-edit {
-    display: block; width: 100%; margin: 6px 0 0;
+    display: block; width: 100%; margin: 4px 0 0;
     background: none; border: none;
     font-size: 10px; font-family: var(--mono); color: var(--text-muted);
-    cursor: pointer; padding: 2px 0; border-radius: 4px;
-    transition: all 0.15s; line-height: 1.6; text-align: center;
+    cursor: pointer; padding: 0; border-radius: 0;
+    transition: color 0.15s; line-height: 1.6; text-align: left;
     text-decoration: underline; text-underline-offset: 2px;
   }
   .template-edit:hover { color: var(--text); }
   .template-edit.is-save { color: var(--accent); font-weight: 600; text-decoration: none; }
   .template-edit.is-save:hover { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .templates-sidebar { display: none; }
+    .mobile-top { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .templates-sidebar { display: none !important; }
+  }
+  @media (min-width: 601px) {
+    .mobile-top { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -262,6 +271,12 @@
   </div>
 </nav>
 
+<div class="mobile-top">
+  <span class="field-label">Rate /hr</span>
+  <input class="field-input" type="number" id="hourlyRateMobile" value="20" min="0" step="1" oninput="document.getElementById('hourlyRate').value=this.value;onAnyChange()">
+  <span class="field-label">€</span>
+  <button class="btn-save-tmpl" onclick="saveTemplate()" style="font-size:11px;padding:4px 10px;">new template</button>
+</div>
 <div class="page-layout">
   <!-- MAIN CALCULATOR -->
   <div class="calc-main">
