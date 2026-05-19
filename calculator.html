@@ -471,7 +471,28 @@ let autosaveTimer = null;
 let activeEditTemplate = null;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+function loadFromCache() {
+  const cp = cacheGet("products");
+  if (cp) { headers = cp.headers || []; products = cp.products || []; populateProductSelect(); }
+  const cm = cacheGet("materials");
+  if (cm) {
+    materials = cm;
+    materials.forEach(m => {
+      if (typeof m.colors === "string") { try { m.colors = JSON.parse(m.colors); } catch { m.colors = []; } }
+      if (typeof m.variants === "string") { try { m.variants = JSON.parse(m.variants); } catch { m.variants = []; } }
+    });
+  }
+  const ct = cacheGet("templates");
+  if (ct) renderTemplates(ct);
+  const cf = cacheGet("features");
+  if (cf) featuresData = { headers: cf.headers || [], features: cf.features || [] };
+  return !!(cp && cm);
+}
+
 async function init() {
+  const hasCached = loadFromCache();
+  const raw = localStorage.getItem(AUTO_SAVE_KEY);
+  if (hasCached && raw) { try { restoreFromState(JSON.parse(raw)); } catch(e) {} }
   await Promise.all([loadProducts(), loadMaterials(), loadTemplates(), loadFeaturesData()]);
 }
 
@@ -1312,11 +1333,7 @@ function handleLogin() {
 }
 
 // ── START ─────────────────────────────────────────────────────────────────────
-(async () => {
-  await init();
-  const raw = localStorage.getItem(AUTO_SAVE_KEY);
-  if (raw) { try { restoreFromState(JSON.parse(raw)); } catch(e) {} }
-})();
+init();
 </script>
 </body>
 </html>
