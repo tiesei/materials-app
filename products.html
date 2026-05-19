@@ -217,18 +217,18 @@
 const CACHE_TTL = 10 * 60 * 1000;
 
 function cacheSet(key, data) {
-  try { sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
 }
 function cacheGet(key) {
   try {
-    const raw = sessionStorage.getItem(key);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     const { ts, data } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) { sessionStorage.removeItem(key); return null; }
+    if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem(key); return null; }
     return data;
   } catch(e) { return null; }
 }
-function cacheInvalidate(key) { try { sessionStorage.removeItem(key); } catch(e) {} }
+function cacheInvalidate(key) { try { localStorage.removeItem(key); } catch(e) {} }
 
 async function apiFetch(url, options, retries = 3) {
   for (let i = 0; i < retries; i++) {
