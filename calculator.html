@@ -173,7 +173,7 @@
 
   .mat-dropdown-wrap { position: relative; }
   .mat-search-input {
-    width: 100%; font-family: var(--sans); font-size: 13px; background: var(--bg);
+    width: 100%; font-family: var(--sans); font-size: 16px; background: var(--bg);
     border: 1px solid var(--border); border-radius: 5px; padding: 4px 8px;
     color: var(--text); outline: none; transition: border-color 0.15s; cursor: pointer;
   }
@@ -186,7 +186,7 @@
   .mat-dropdown-list.open { display: block; }
   .mat-search-box { padding: 6px 8px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
   .mat-search-box input {
-    width: 100%; font-family: var(--sans); font-size: 12px; background: var(--bg);
+    width: 100%; font-family: var(--sans); font-size: 16px; background: var(--bg);
     border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px; color: var(--text); outline: none;
   }
   .mat-search-box input:focus { border-color: var(--accent); }
@@ -195,7 +195,7 @@
   .mat-option.no-results { color: var(--text-muted); font-size: 12px; cursor: default; }
 
   select.color-select, select.opt-select {
-    font-family: var(--sans); font-size: 13px; background: var(--bg);
+    font-family: var(--sans); font-size: 16px; background: var(--bg);
     border: 1px solid var(--border); border-radius: 5px; padding: 4px 8px;
     color: var(--text); outline: none; cursor: pointer; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -206,13 +206,13 @@
   select.color-select.out-of-stock option { color: var(--text); }
   select.color-select.out-of-stock option[data-out="1"] { color: #c0392b; }
 
-   background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .summary-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .summary { background: transparent; border: none; border-radius: 0; overflow: visible; }
+  .summary-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; padding: 0.25rem 0; font-size: 13px; }
   .summary-row:last-child { border-bottom: none; }
-  .summary-row.total { background: var(--accent-light); font-weight: 600; font-size: 15px; }
+  .summary-row.total { background: none; font-weight: 700; font-size: 18px; margin-top: 0.25rem; }
   .summary-label { color: var(--text-muted); font-size: 12px; }
   .summary-value { font-family: var(--mono); font-size: 13px; }
-  .summary-row.total .summary-value { font-size: 15px; color: var(--accent); }
+  .summary-row.total .summary-value { font-size: 18px; color: var(--accent); font-weight: 700; }
 
   .admin-only { display: none; }
   body.is-admin .admin-only { display: flex; }
@@ -272,7 +272,7 @@
     .templates-sidebar { display: none !important; }
     .mobile-top {
       display: flex; gap: 0.5rem; align-items: center;
-      margin-bottom: 0.5rem; padding: 0 0.5rem;
+      margin-bottom: 0.5rem; padding: 0.5rem 0.5rem 0;
       justify-content: flex-end;
     }
     .mobile-templates-strip {
@@ -557,7 +557,9 @@ function renderPositions(product) {
 
     const qtyEl = document.createElement("div");
     qtyEl.className = "position-qty";
-    qtyEl.textContent = `× ${posQty}`;
+    const type = getTypeFromHeader(h);
+    const unit = (type === "Zipper" || type === "Furniture") ? "pcs" : "sqm";
+    qtyEl.textContent = `× ${posQty} ${unit}`;
 
     const thumbWrap = document.createElement("div");
     thumbWrap.className = "position-thumb-wrap";
