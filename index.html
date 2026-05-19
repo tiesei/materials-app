@@ -270,6 +270,8 @@
       <div class="multiselect-dropdown" id="typeDropdown"></div>
     </div>
     <button class="filter-clear" id="filterClearBtn" style="display:none" onclick="clearTypeFilter()">clear</button>
+    <input type="text" id="materialSearch" placeholder="Search materials…" oninput="renderTable()"
+      style="font-family:var(--mono);font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 8px;color:var(--text);outline:none;width:180px;">
   </div>
 
   <div class="status-bar" id="statusBar"></div>
@@ -562,8 +564,13 @@ function renderTable() {
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
 
-  let data = [...allMaterials];
+  const searchQ = (document.getElementById("materialSearch")?.value || "").toLowerCase().trim();
+  let data = [...allMaterials].reverse();
   if (activeTypes.size > 0) data = data.filter(i => activeTypes.has(i.type));
+  if (searchQ) data = data.filter(i =>
+    (i.title || "").toLowerCase().includes(searchQ) ||
+    (i.description || "").toLowerCase().includes(searchQ)
+  );
   if (sortCol) {
     data.sort((a, b) => {
       const av = getSortVal(a, sortCol), bv = getSortVal(b, sortCol);
