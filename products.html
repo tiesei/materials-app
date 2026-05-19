@@ -212,6 +212,41 @@
 
 <script>
 
+
+// ── SHARED API UTILS ─────────────────────────────────────────────────────────
+const CACHE_TTL = 10 * 60 * 1000;
+
+function cacheSet(key, data) {
+  try { sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+}
+function cacheGet(key) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) { sessionStorage.removeItem(key); return null; }
+    return data;
+  } catch(e) { return null; }
+}
+function cacheInvalidate(key) { try { sessionStorage.removeItem(key); } catch(e) {} }
+
+async function apiFetch(url, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res;
+    } catch(e) {
+      if (i < retries - 1) await new Promise(r => setTimeout(r, 2000));
+      else throw e;
+    }
+  }
+}
+
+setInterval(() => {
+  fetch("https://materials-parser-api.onrender.com/health").catch(() => {});
+}, 8 * 60 * 1000);
+
 const API = "https://materials-parser-api.onrender.com";
 let headers = [];
 let featHeaders = [];
@@ -232,28 +267,34 @@ function setFeatStatus(msg, type = "") {
 function clearFeatStatus(d = 0) { setTimeout(() => { const b = document.getElementById("featStatusBar"); b.innerHTML = ""; b.className = "status-bar"; }, d); }
 
 async function loadProducts() {
-  setStatus("Loading…", "loading");
+  const cached = cacheGet("products");
+  if (cached) { headers = cached.headers.length ? cached.headers : ["Product Name"]; render(headers, cached.products || []); }
+  else setStatus("Loading…", "loading");
   try {
-    const res = await fetch(`${API}/products`);
+    const res = await apiFetch(`${API}/products`);
     const data = await res.json();
     headers = data.headers.length ? data.headers : ["Product Name"];
+    cacheSet("products", data);
     render(headers, data.products || []);
     clearStatus();
   } catch(e) {
-    setStatus("Failed to load — API may be waking up, try again in 30s.", "error");
+    if (!cached) setStatus("Failed to load — API may be waking up, try again in 30s.", "error");
   }
 }
 
 async function loadFeatures() {
-  setFeatStatus("Loading…", "loading");
+  const cached = cacheGet("features");
+  if (cached) { featHeaders = cached.headers && cached.headers.length ? cached.headers : ["Feature Name"]; renderFeatures(featHeaders, cached.features || []); }
+  else setFeatStatus("Loading…", "loading");
   try {
-    const res = await fetch(`${API}/features`);
+    const res = await apiFetch(`${API}/features`);
     const data = await res.json();
     featHeaders = data.headers && data.headers.length ? data.headers : ["Feature Name"];
+    cacheSet("features", data);
     renderFeatures(featHeaders, data.features || []);
     clearFeatStatus();
   } catch(e) {
-    setFeatStatus("Failed to load features.", "error");
+    if (!cached) setFeatStatus("Failed to load features.", "error");
   }
 }
 
@@ -438,6 +479,7 @@ async function saveAll() {
       body: JSON.stringify({ products: getProductsFromDOM(), headers })
     });
     if (!res.ok) throw new Error();
+    cacheInvalidate("products");
     setStatus("✓ Saved", "ok");
     clearStatus(2000);
   } catch(e) {
@@ -455,6 +497,7 @@ async function saveFeatAll() {
       body: JSON.stringify({ products: getFeaturesFromDOM(), headers: featHeaders })
     });
     if (!res.ok) throw new Error();
+    cacheInvalidate("features");
     setFeatStatus("✓ Saved", "ok");
     clearFeatStatus(2000);
   } catch(e) {
