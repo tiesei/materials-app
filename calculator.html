@@ -142,10 +142,10 @@
   /* ── POSITION CARD ── */
   .position-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    display: flex; min-height: 0; overflow: visible;
+    display: flex; min-height: 0; overflow: hidden;
   }
   .position-card-thumb-col {
-    flex-shrink: 0; width: 80px; min-width: 80px;
+    flex-shrink: 0; width: 90px; min-width: 90px;
     background: var(--bg); border-right: 1px solid var(--border);
     border-radius: 10px 0 0 10px;
     display: flex; align-items: center; justify-content: center;
@@ -160,45 +160,16 @@
 
   .position-card-content {
     flex: 1; min-width: 0;
-    padding: 0.45rem 0.6rem;
-    display: flex; flex-direction: column; gap: 3px;
+    padding: 0.55rem 0.65rem;
+    display: flex; flex-direction: column; gap: 6px;
   }
   .position-card-top {
-    display: flex; align-items: baseline; gap: 4px; flex-wrap: nowrap;
-  }
-  .position-label {
-    font-family: var(--mono); font-size: 10px; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.04em;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
-  }
-  .position-qty {
-    font-family: var(--mono); font-size: 10px; color: var(--text-muted);
-    white-space: nowrap; flex-shrink: 0;
-  }
-  /* Fixed two-bar area always same height */
-  .position-card-bottom { display: flex; flex-direction: column; gap: 4px; }
-  .position-selects { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
-  .position-price-row { display: flex; justify-content: flex-end; margin-top: 2px; }
-  .position-price {
-    font-family: var(--mono); font-size: 12px; color: var(--text);
-    white-space: nowrap;
-  }
-  .position-price.na { color: var(--text-muted); }
-
-  .position-card-content {
-    grid-column: 2; grid-row: 1;
-    padding: 0.5rem 0.6rem;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    gap: 4px; min-width: 0;
-  }
-  .position-card-top {
-    display: flex; align-items: center; gap: 0.3rem; min-width: 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;
   }
   .position-label {
     font-family: var(--mono); font-size: 10px; color: var(--text-muted);
     text-transform: uppercase; letter-spacing: 0.05em;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
   }
   .position-qty {
     font-family: var(--mono); font-size: 10px; color: var(--text-muted);
@@ -207,8 +178,9 @@
   .position-card-bottom {
     display: flex; flex-direction: column; gap: 4px; min-width: 0;
   }
+  .position-selects { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
   .position-price-row {
-    display: flex; justify-content: flex-end;
+    display: flex; justify-content: flex-end; padding-top: 2px;
   }
   .position-price {
     font-family: var(--mono); font-size: 12px; text-align: right;
@@ -216,8 +188,6 @@
   }
   .position-price.na { color: var(--text-muted); }
   .sel-hidden { opacity: 0 !important; pointer-events: none !important; }
-
-  .position-selects { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 
   .mat-dropdown-wrap { position: relative; }
   .mat-search-input {
