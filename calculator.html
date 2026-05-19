@@ -160,8 +160,8 @@
 
   .position-card-content {
     flex: 1; min-width: 0;
-    padding: 0.55rem 0.65rem;
-    display: flex; flex-direction: column; gap: 6px;
+    padding: 0.35rem 0.6rem;
+    display: flex; flex-direction: column; gap: 4px;
   }
   .position-card-top {
     display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;
@@ -180,7 +180,7 @@
   }
   .position-selects { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
   .position-price-row {
-    display: flex; justify-content: flex-end; padding-top: 2px;
+    display: flex; justify-content: flex-end;
   }
   .position-price {
     font-family: var(--mono); font-size: 12px; text-align: right;
@@ -340,9 +340,46 @@
     .mobile-top { display: none; }
     .mobile-templates-strip { display: none !important; }
   }
+
+  /* ── THUMB LIGHTBOX ── */
+  .thumb-lightbox-overlay {
+    display: none; position: fixed; inset: 0; z-index: 99999;
+    pointer-events: none;
+  }
+  .thumb-lightbox-overlay.open { display: block; pointer-events: all; }
+  .thumb-lightbox-box {
+    position: absolute;
+    width: 400px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    transform: translateX(-50%);
+  }
+  .thumb-lightbox-box img {
+    width: 100%; height: 400px; object-fit: cover; display: block;
+  }
+  .thumb-lightbox-close {
+    position: absolute; top: 8px; right: 10px;
+    background: rgba(0,0,0,0.35); border: none; border-radius: 50%;
+    width: 28px; height: 28px; cursor: pointer; color: #fff;
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .thumb-lightbox-close:hover { background: rgba(0,0,0,0.55); }
+  .thumb-lightbox-no-img {
+    width: 100%; height: 400px; display: flex; align-items: center;
+    justify-content: center; font-size: 64px; background: var(--bg);
+  }
 </style>
 </head>
 <body>
+
+<div class="thumb-lightbox-overlay" id="thumbLightbox">
+  <div class="thumb-lightbox-box" id="thumbLightboxBox">
+    <img id="thumbLightboxImg" src="" alt="">
+    <div class="thumb-lightbox-no-img" id="thumbLightboxPlaceholder" style="display:none">🧵</div>
+    <button class="thumb-lightbox-close" onclick="closeLightbox()">✕</button>
+  </div>
+</div>
 
 <nav>
   <div class="nav-inner">
@@ -829,8 +866,13 @@ function renderPositions(product) {
     // Thumb column
     const thumbCol = document.createElement("div");
     thumbCol.className = "position-card-thumb-col";
+    thumbCol.style.cssText = "width:90px;min-width:90px;cursor:pointer;";
     thumbCol.appendChild(img);
     thumbCol.appendChild(placeholder);
+    thumbCol.addEventListener("click", () => {
+      const src = img.src && img.classList.contains("loaded") ? img.src : null;
+      openLightbox(src, placeholder.textContent, thumbCol);
+    });
 
     // Content column
     const content = document.createElement("div");
