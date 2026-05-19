@@ -87,9 +87,21 @@
     width: 100%;
   }
 
+  .table-wrap-body {
+    border-top: none;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--surface) 0px,
+      var(--surface) 28px,
+      #f0ede6 28px,
+      #f0ede6 56px
+    );
+    background-attachment: local;
+  }
+
   body { overflow-x: hidden; }
 
-  table { width: auto; min-width: 0; border-collapse: collapse; table-layout: fixed; }
+  table { width: auto; min-width: 100%; border-collapse: collapse; table-layout: fixed; }
   thead { background: var(--bg); }
   thead tr { position: relative; }
 
@@ -129,9 +141,7 @@
   .th-add-btn:hover { color: var(--accent); }
 
   /* Zebra rows extend full width via tr background */
-  tbody tr:nth-child(odd):not(.add-row-tr) { background: var(--surface); }
-  tbody tr:nth-child(even):not(.add-row-tr) { background: #f4f1ec; }
-  tbody tr:not(.add-row-tr):hover { background: #ede9e2; }
+  tbody tr:not(.add-row-tr):hover td { background: #e8e4dc; }
   tr.add-row-tr { background: transparent; }
 
   td { padding: 2px 8px; border-bottom: none; vertical-align: middle; font-size: 13px; outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.7; background: transparent; }
@@ -197,6 +207,10 @@
 <div class="table-wrap">
   <table>
     <thead id="thead"></thead>
+  </table>
+</div>
+<div class="table-wrap table-wrap-body">
+  <table>
     <tbody id="tbody"></tbody>
   </table>
 </div>
@@ -206,6 +220,10 @@
 <div class="table-wrap">
   <table>
     <thead id="fthead"></thead>
+  </table>
+</div>
+<div class="table-wrap table-wrap-body">
+  <table>
     <tbody id="ftbody"></tbody>
   </table>
 </div>
