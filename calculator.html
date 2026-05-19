@@ -214,6 +214,42 @@
   .summary-value { font-family: var(--mono); font-size: 13px; }
   .summary-row.total .summary-value { font-size: 18px; color: var(--accent); font-weight: 700; }
 
+  .features-section { display: flex; flex-direction: column; gap: 0.5rem; }
+  .feat-add-wrap { position: relative; }
+  .feat-add-btn {
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    background: none; border: 1px dashed var(--border); border-radius: 8px;
+    color: var(--text-muted); cursor: pointer; padding: 0.5rem 1rem;
+    width: 100%; text-align: left; transition: border-color 0.15s, color 0.15s;
+  }
+  .feat-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.65rem 0.75rem; display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: 1fr auto;
+    gap: 0.4rem 0.5rem; min-width: 0; position: relative;
+  }
+  .feature-card-top {
+    grid-column: 1; grid-row: 1;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .feature-card-label {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .feature-card-bottom {
+    grid-column: 1 / 3; grid-row: 2;
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .feature-remove-btn {
+    grid-column: 2; grid-row: 1;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 14px; padding: 0 2px;
+    align-self: center;
+  }
+  .feature-remove-btn:hover { color: #c0392b; }
+
   .admin-only { display: none; }
   body.is-admin .admin-only { display: flex; }
 
@@ -336,6 +372,22 @@
       <div class="empty-state">Select a product above to start</div>
     </div>
 
+    <!-- FEATURES -->
+    <div class="features-section" id="featuresSection" style="display:none;">
+      <div class="features-added" id="featuresAdded"></div>
+      <div class="feat-add-wrap">
+        <div class="mat-dropdown-wrap" id="featDropWrap">
+          <button class="feat-add-btn" id="featAddBtn" onclick="toggleFeatDropdown()">+ add feature</button>
+          <div class="mat-dropdown-list" id="featDropList">
+            <div class="mat-search-box">
+              <input type="text" id="featSearchInput" placeholder="Search features…" oninput="filterFeatOptions(this.value)" onclick="event.stopPropagation()">
+            </div>
+            <div id="featOptions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="summary" id="summary" style="display:none;">
       <div class="summary-row">
         <span class="summary-label">Materials</span>
@@ -379,12 +431,13 @@
 const API = "https://materials-parser-api.onrender.com";
 const AUTO_SAVE_KEY = "calc_autosave";
 let products = [], headers = [], materials = [], isAdmin = false;
+let featuresData = { headers: [], features: [] };
 let autosaveTimer = null;
-let activeEditTemplate = null; // name of template currently being edited
+let activeEditTemplate = null;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
-  await Promise.all([loadProducts(), loadMaterials(), loadTemplates()]);
+  await Promise.all([loadProducts(), loadMaterials(), loadTemplates(), loadFeaturesData()]);
 }
 
 async function loadProducts() {
@@ -406,6 +459,14 @@ async function loadMaterials() {
       if (typeof m.variants === "string") { try { m.variants = JSON.parse(m.variants); } catch { m.variants = []; } }
     });
   } catch(e) { console.error("loadMaterials failed", e); }
+}
+
+async function loadFeaturesData() {
+  try {
+    const res = await fetch(`${API}/features`);
+    const data = await res.json();
+    featuresData = { headers: data.headers || [], features: data.features || [] };
+  } catch(e) { console.warn("loadFeaturesData failed", e); }
 }
 
 function populateProductSelect() {
@@ -437,10 +498,14 @@ function onProductChange() {
   if (isNaN(idx)) {
     document.getElementById("positions").innerHTML = '<div class="empty-state">Select a product above to start</div>';
     document.getElementById("summary").style.display = "none";
+    document.getElementById("featuresSection").style.display = "none";
     return;
   }
   renderPositions(products[idx]);
+  document.getElementById("featuresSection").style.display = "";
+  document.getElementById("featuresAdded").innerHTML = "";
   document.getElementById("summary").style.display = "block";
+  buildFeatOptions("");
   onAnyChange();
 }
 
@@ -764,12 +829,46 @@ function recalc() {
     }
   });
 
-  const labourTotal = hours * rate * qty;
-  const costTotal = matTotal + labourTotal;
+  // Feature material costs
+  let featMatTotal = 0;
+  let featLabourTotal = 0;
+  const hoursHeaderFeat = featuresData.headers.find(h => h.toLowerCase().includes("working") || h.toLowerCase().includes("hours"));
+  document.querySelectorAll(".feature-card").forEach(card => {
+    card.querySelectorAll(".position-card").forEach(posCard => {
+      const posQty = parseFloat(posCard.dataset.qty || "0");
+      const matInput = posCard.querySelector(".mat-search-input");
+      const colorSel = posCard.querySelector(".color-select");
+      const mi = parseInt(matInput?.dataset.selectedIdx);
+      const mat = isNaN(mi) ? null : materials[mi];
+      const priceEl = posCard.querySelector(".position-price");
+      let price = 0;
+      if (mat) {
+        const ci = parseInt(colorSel?.value);
+        const color = !isNaN(ci) ? (mat.colors || [])[ci] : null;
+        price = color?.price_per_unit || parsePrice(mat.price || "");
+      }
+      const lineTotal = price * posQty * qty;
+      featMatTotal += lineTotal;
+      if (priceEl) {
+        priceEl.textContent = mat && price ? `${lineTotal.toFixed(2)} EUR` : "—";
+        priceEl.className = "position-price" + (mat && price ? "" : " na");
+      }
+    });
+    // Feature labour
+    const featName = card.dataset.featname;
+    const feat = featuresData.features.find(f => f[featuresData.headers[0]] === featName);
+    if (feat && hoursHeaderFeat) {
+      const fHours = parseFloat((feat[hoursHeaderFeat] || "0").replace(",", ".")) || 0;
+      featLabourTotal += fHours * rate * qty;
+    }
+  });
+
+  const labourTotal = hours * rate * qty + featLabourTotal;
+  const costTotal = matTotal + featMatTotal + labourTotal;
   const markupPct = parseFloat(document.getElementById("markupPct")?.value || "0");
   const markupAmt = costTotal * (markupPct / 100);
 
-  document.getElementById("sumMaterials").textContent = `${matTotal.toFixed(2)} EUR`;
+  document.getElementById("sumMaterials").textContent = `${(matTotal + featMatTotal).toFixed(2)} EUR`;
   document.getElementById("sumLabour").textContent = `${labourTotal.toFixed(2)} EUR`;
   if (isAdmin) {
     document.getElementById("sumCost").textContent = `${costTotal.toFixed(2)} EUR`;
@@ -784,6 +883,207 @@ function parsePrice(str) {
   if (!str) return 0;
   const m = str.replace(",", ".").match(/[\d.]+/);
   return m ? parseFloat(m[0]) : 0;
+}
+
+// ── FEATURES ──────────────────────────────────────────────────────────────────
+function toggleFeatDropdown() {
+  const list = document.getElementById("featDropList");
+  list.classList.toggle("open");
+  if (list.classList.contains("open")) {
+    document.getElementById("featSearchInput").value = "";
+    buildFeatOptions("");
+    setTimeout(() => document.getElementById("featSearchInput").focus(), 50);
+  }
+}
+
+document.addEventListener("click", e => {
+  const wrap = document.getElementById("featDropWrap");
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById("featDropList")?.classList.remove("open");
+  }
+});
+
+function buildFeatOptions(query) {
+  const container = document.getElementById("featOptions");
+  if (!container) return;
+  container.innerHTML = "";
+  const q = query.toLowerCase();
+  const nameHeader = featuresData.headers[0];
+  const results = featuresData.features.filter(f => !q || (f[nameHeader] || "").toLowerCase().includes(q));
+  if (!results.length) {
+    const no = document.createElement("div");
+    no.className = "mat-option no-results"; no.textContent = "No features found";
+    container.appendChild(no); return;
+  }
+  results.forEach(feat => {
+    const opt = document.createElement("div");
+    opt.className = "mat-option";
+    opt.textContent = feat[nameHeader] || "—";
+    opt.onclick = () => {
+      document.getElementById("featDropList").classList.remove("open");
+      addFeatureCard(feat);
+      onAnyChange();
+    };
+    container.appendChild(opt);
+  });
+}
+
+function filterFeatOptions(query) { buildFeatOptions(query); }
+
+function addFeatureCard(feat) {
+  const nameHeader = featuresData.headers[0];
+  const hoursHeader = featuresData.headers.find(h => h.toLowerCase().includes("working") || h.toLowerCase().includes("hours"));
+  const featName = feat[nameHeader] || "Feature";
+  const posHeaders = featuresData.headers.filter(h => h !== nameHeader && h !== hoursHeader);
+
+  const card = document.createElement("div");
+  card.className = "feature-card";
+  card.dataset.featname = featName;
+
+  const top = document.createElement("div");
+  top.className = "feature-card-top";
+  const lbl = document.createElement("span");
+  lbl.className = "feature-card-label";
+  lbl.textContent = featName;
+  top.appendChild(lbl);
+
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "feature-remove-btn";
+  removeBtn.textContent = "×";
+  removeBtn.onclick = () => { card.remove(); onAnyChange(); };
+
+  const bottom = document.createElement("div");
+  bottom.className = "feature-card-bottom";
+
+  posHeaders.forEach(h => {
+    const posQty = parseFloat((feat[h] || "0").replace(",", "."));
+    if (!posQty) return;
+
+    const posCard = document.createElement("div");
+    posCard.className = "position-card";
+    posCard.dataset.header = h;
+    posCard.dataset.qty = posQty;
+
+    const type = getTypeFromHeader(h);
+    const unit = (type === "Zipper" || type === "Furniture") ? "pcs" : "sqm";
+
+    const cardTop = document.createElement("div");
+    cardTop.className = "position-card-top";
+    const label = document.createElement("div");
+    label.className = "position-label";
+    label.textContent = h;
+    const qtyEl = document.createElement("div");
+    qtyEl.className = "position-qty";
+    qtyEl.textContent = `× ${posQty} ${unit}`;
+    cardTop.appendChild(label);
+    cardTop.appendChild(qtyEl);
+
+    const priceEl = document.createElement("div");
+    priceEl.className = "position-price na";
+    priceEl.textContent = "—";
+
+    const cardBottom = document.createElement("div");
+    cardBottom.className = "position-card-bottom";
+
+    const thumbWrap = document.createElement("div");
+    thumbWrap.className = "position-thumb-wrap";
+    const img = document.createElement("img");
+    img.onload = () => img.classList.add("loaded");
+    img.onerror = () => img.classList.remove("loaded");
+    const placeholder = document.createElement("span");
+    placeholder.className = "thumb-placeholder";
+    const EMOJIS = ["🧵","🪡","✂️","🧶","📐","🪢","🎨","🧷"];
+    placeholder.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    thumbWrap.appendChild(img); thumbWrap.appendChild(placeholder);
+
+    const selects = document.createElement("div");
+    selects.className = "position-selects";
+
+    const filtered = filterMaterialsByHeader(h);
+    const matWrap = document.createElement("div");
+    matWrap.className = "mat-dropdown-wrap";
+    const matInput = document.createElement("input");
+    matInput.className = "mat-search-input";
+    matInput.placeholder = "— select material —";
+    matInput.readOnly = true;
+    matInput.dataset.selectedIdx = "";
+    const matList = document.createElement("div");
+    matList.className = "mat-dropdown-list";
+    const searchBox = document.createElement("div");
+    searchBox.className = "mat-search-box";
+    const searchInput = document.createElement("input");
+    searchInput.type = "text"; searchInput.placeholder = "Search…";
+    searchBox.appendChild(searchInput); matList.appendChild(searchBox);
+    const optionsContainer = document.createElement("div");
+    matList.appendChild(optionsContainer);
+
+    const colorSel = document.createElement("select");
+    colorSel.className = "color-select";
+    colorSel.innerHTML = '<option value="">— color —</option>';
+    colorSel.style.display = "none";
+    const optSel = document.createElement("select");
+    optSel.className = "opt-select";
+    optSel.innerHTML = '<option value="">— option —</option>';
+    optSel.style.display = "none";
+
+    function buildOptions(query) {
+      optionsContainer.innerHTML = "";
+      const q = query.toLowerCase();
+      const results = filtered.filter(m => !q || (m.title || "").toLowerCase().includes(q));
+      if (!results.length) {
+        const no = document.createElement("div");
+        no.className = "mat-option no-results"; no.textContent = "No results";
+        optionsContainer.appendChild(no); return;
+      }
+      results.forEach(m => {
+        const realIdx = materials.indexOf(m);
+        const opt = document.createElement("div");
+        opt.className = "mat-option";
+        if (matInput.dataset.selectedIdx === String(realIdx)) opt.classList.add("selected");
+        opt.textContent = m.title || m.url;
+        opt.onclick = () => {
+          matInput.dataset.selectedIdx = realIdx;
+          matInput.value = m.title || m.url;
+          matList.classList.remove("open");
+          onMatSelected(realIdx, img, colorSel, optSel, priceEl, posQty);
+          onAnyChange();
+        };
+        optionsContainer.appendChild(opt);
+      });
+    }
+
+    matInput.onclick = e => {
+      e.stopPropagation();
+      matList.classList.toggle("open");
+      if (matList.classList.contains("open")) {
+        searchInput.value = ""; buildOptions("");
+        setTimeout(() => searchInput.focus(), 50);
+      }
+    };
+    searchInput.oninput = () => buildOptions(searchInput.value);
+    searchInput.onclick = e => e.stopPropagation();
+    document.addEventListener("click", e => { if (!matWrap.contains(e.target)) matList.classList.remove("open"); });
+    colorSel.onchange = () => {
+      const mi = parseInt(matInput.dataset.selectedIdx);
+      const mat = isNaN(mi) ? null : materials[mi];
+      if (!mat) return;
+      const c = (mat.colors || [])[parseInt(colorSel.value)];
+      if (c?.image) img.src = c.image;
+      updateColorSelectStyle(colorSel, mat);
+      onAnyChange();
+    };
+    optSel.onchange = onAnyChange;
+
+    matWrap.appendChild(matInput); matWrap.appendChild(matList);
+    selects.appendChild(matWrap); selects.appendChild(colorSel); selects.appendChild(optSel);
+    cardBottom.appendChild(thumbWrap); cardBottom.appendChild(selects);
+
+    posCard.appendChild(cardTop); posCard.appendChild(priceEl); posCard.appendChild(cardBottom);
+    bottom.appendChild(posCard);
+  });
+
+  card.appendChild(top); card.appendChild(removeBtn); card.appendChild(bottom);
+  document.getElementById("featuresAdded").appendChild(card);
 }
 
 // ── OUT OF STOCK ──────────────────────────────────────────────────────────────
@@ -946,6 +1246,8 @@ function resetCalc() {
   document.getElementById("productSelect").value = "";
   document.getElementById("positions").innerHTML = '<div class="empty-state">Select a product above to start</div>';
   document.getElementById("summary").style.display = "none";
+  document.getElementById("featuresSection").style.display = "none";
+  document.getElementById("featuresAdded").innerHTML = "";
 }
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
