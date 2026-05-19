@@ -128,13 +128,14 @@
   .th-add-btn { width: 100%; background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 15px; padding: 4px 6px; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
   .th-add-btn:hover { color: var(--accent); }
 
-  /* Zebra rows, no borders */
-  td { padding: 2px 8px; border-bottom: none; vertical-align: middle; font-size: 13px; outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.7; }
+  /* Zebra rows extend full width via tr background */
+  tbody tr:nth-child(odd):not(.add-row-tr) { background: var(--surface); }
+  tbody tr:nth-child(even):not(.add-row-tr) { background: #f4f1ec; }
+  tbody tr:not(.add-row-tr):hover { background: #ede9e2; }
+  tr.add-row-tr { background: transparent; }
+
+  td { padding: 2px 8px; border-bottom: none; vertical-align: middle; font-size: 13px; outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.7; background: transparent; }
   td:focus { background: #fff !important; box-shadow: inset 0 0 0 1px var(--accent); border-radius: 2px; white-space: normal; overflow: visible; }
-  tbody tr:nth-child(odd):not(.add-row-tr) td { background: var(--surface); }
-  tbody tr:nth-child(even):not(.add-row-tr) td { background: #f4f1ec; }
-  tr:hover td { background: #ede9e2 !important; }
-  tr.add-row-tr td { background: transparent !important; }
 
   td.name-cell { font-weight: 500; white-space: nowrap; text-align: left; }
   td.num-cell { font-family: var(--mono); font-size: 12px; text-align: right; }
