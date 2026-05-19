@@ -162,6 +162,7 @@
     flex: 1; min-width: 0;
     padding: 0.35rem 0.6rem;
     display: flex; flex-direction: column; gap: 4px;
+    justify-content: center;
   }
   .position-card-top {
     display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0;
@@ -373,7 +374,7 @@
 </head>
 <body>
 
-<div class="thumb-lightbox-overlay" id="thumbLightbox">
+<div class="thumb-lightbox-overlay" id="thumbLightbox" onclick="if(event.target===this)closeLightbox();">
   <div class="thumb-lightbox-box" id="thumbLightboxBox">
     <img id="thumbLightboxImg" src="" alt="">
     <div class="thumb-lightbox-no-img" id="thumbLightboxPlaceholder" style="display:none">🧵</div>
@@ -1426,6 +1427,39 @@ function handleLogin() {
 }
 
 // ── START ─────────────────────────────────────────────────────────────────────
+
+// ── THUMB LIGHTBOX ────────────────────────────────────────────────────────────
+function openLightbox(imgSrc, placeholderText, thumbEl) {
+  const overlay = document.getElementById("thumbLightbox");
+  const box = document.getElementById("thumbLightboxBox");
+  const img = document.getElementById("thumbLightboxImg");
+  const ph = document.getElementById("thumbLightboxPlaceholder");
+
+  if (imgSrc) {
+    img.src = imgSrc; img.style.display = "block"; ph.style.display = "none";
+  } else {
+    img.style.display = "none"; ph.style.display = "flex";
+    ph.textContent = placeholderText || "🧵";
+  }
+
+  const rect = thumbEl.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2 + window.scrollX;
+  const boxH = 420;
+  let top;
+  if (rect.bottom + 8 + boxH <= window.innerHeight) {
+    top = rect.bottom + 8 + window.scrollY;
+  } else {
+    top = rect.top + window.scrollY - boxH - 8;
+  }
+  box.style.left = centerX + "px";
+  box.style.top = top + "px";
+  overlay.classList.add("open");
+}
+
+function closeLightbox() {
+  document.getElementById("thumbLightbox").classList.remove("open");
+}
+
 init();
 </script>
 </body>
