@@ -593,7 +593,7 @@ function populateProductSelect() {
 
 function getTypeFromHeader(h) {
   const first = h.split(/[\s:]/)[0].toLowerCase();
-  const map = { fabric:"Fabric", foam:"Foam", webbing:"Webbing", zipper:"Zipper", furniture:"Furniture", binding:"Binding" };
+  const map = { fabric:"Fabric", foam:"Foam", webbing:"Webbing", zipper:"Zipper", furniture:"Hardware", binding:"Binding" };
   return map[first] || null;
 }
 
@@ -727,7 +727,7 @@ function makePositionCard(h, posQty, container) {
   const qtyEl = document.createElement("div");
   qtyEl.className = "position-qty";
   const type = getTypeFromHeader(h);
-  const unit = (type === "Zipper" || type === "Furniture") ? "pcs" : "sqm";
+  const unit = (type === "Zipper" || type === "Hardware") ? "pcs" : "sqm";
   qtyEl.textContent = `× ${posQty} ${unit}`;
 
   const img = document.createElement("img");
