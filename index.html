@@ -340,7 +340,16 @@ setInterval(() => {
 }, 8 * 60 * 1000);
 
 const API = "https://materials-parser-api.onrender.com";
-const TYPES = ["Fabric", "Foam", "Webbing", "Zipper", "Hardware", "Binding"];
+let TYPES = (function() {
+  try {
+    const saved = localStorage.getItem("smysl_types");
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return ["Fabric", "Foam", "Webbing", "Zipper", "Hardware", "Binding"];
+})();
+function saveTypes() {
+  try { localStorage.setItem("smysl_types", JSON.stringify(TYPES)); } catch(e) {}
+}
 
 let allMaterials = [];
 let activeTypes = new Set();
@@ -360,18 +369,81 @@ function clearStatus() {
 function buildTypeDropdown() {
   const dd = document.getElementById("typeDropdown");
   dd.innerHTML = "";
-  TYPES.forEach(t => {
-    const label = document.createElement("label");
-    label.className = "multiselect-option";
+
+  TYPES.forEach((t, i) => {
+    const row = document.createElement("div");
+    row.className = "multiselect-option";
+    row.style.cssText = "display:flex;align-items:center;gap:4px;";
+
     const cb = document.createElement("input");
     cb.type = "checkbox"; cb.value = t; cb.checked = activeTypes.has(t);
     cb.onchange = () => {
       if (cb.checked) activeTypes.add(t); else activeTypes.delete(t);
       updateFilterBtn(); renderTable();
     };
-    label.appendChild(cb);
-    label.appendChild(document.createTextNode(t));
-    dd.appendChild(label);
+
+    const lbl = document.createElement("span");
+    lbl.textContent = t;
+    lbl.style.cssText = "flex:1;font-size:13px;";
+
+    const del = document.createElement("button");
+    del.textContent = "✕";
+    del.title = "Delete type";
+    del.style.cssText = "background:none;border:none;cursor:pointer;color:#aaa;font-size:10px;padding:0 2px;flex-shrink:0;";
+    del.onmouseenter = () => del.style.color = "#8b3a2a";
+    del.onmouseleave = () => del.style.color = "#aaa";
+    del.onclick = (e) => {
+      e.stopPropagation();
+      TYPES.splice(i, 1);
+      activeTypes.delete(t);
+      saveTypes();
+      buildTypeDropdown();
+      updateFilterBtn();
+      renderTable();
+      // Update all type selects in table
+      document.querySelectorAll(".type-select").forEach(sel => rebuildTypeSelect(sel));
+    };
+
+    row.appendChild(cb);
+    row.appendChild(lbl);
+    row.appendChild(del);
+    dd.appendChild(row);
+  });
+
+  // Add new type input
+  const addRow = document.createElement("div");
+  addRow.style.cssText = "display:flex;align-items:center;gap:4px;padding:4px 8px;border-top:1px solid var(--border);margin-top:4px;";
+  const inp = document.createElement("input");
+  inp.type = "text"; inp.placeholder = "New type…";
+  inp.style.cssText = "flex:1;font-size:12px;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-family:var(--sans);background:var(--bg);color:var(--text);outline:none;";
+  const addBtn = document.createElement("button");
+  addBtn.textContent = "+";
+  addBtn.style.cssText = "background:var(--accent);color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:13px;flex-shrink:0;";
+  const doAdd = () => {
+    const val = inp.value.trim();
+    if (!val || TYPES.includes(val)) { inp.value = ""; return; }
+    TYPES.push(val);
+    saveTypes();
+    inp.value = "";
+    buildTypeDropdown();
+    document.querySelectorAll(".type-select").forEach(sel => rebuildTypeSelect(sel));
+  };
+  addBtn.onclick = doAdd;
+  inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); doAdd(); } };
+  inp.onclick = e => e.stopPropagation();
+  addRow.appendChild(inp);
+  addRow.appendChild(addBtn);
+  dd.appendChild(addRow);
+}
+
+function rebuildTypeSelect(sel) {
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— type —</option>';
+  TYPES.forEach(t => {
+    const o = document.createElement("option");
+    o.value = t; o.textContent = t;
+    if (t === current) o.selected = true;
+    sel.appendChild(o);
   });
 }
 
