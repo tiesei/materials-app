@@ -118,6 +118,7 @@
   th:hover .col-btn { color: var(--text-muted); }
   .col-btn:hover { color: var(--text) !important; background: var(--border); }
   .col-btn.del:hover { color: #8b3a2a !important; }
+  .col-move-wrap { display: flex; gap: 1px; flex-shrink: 0; }
 
   .th-add-btn { width: 100%; background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 15px; padding: 4px 6px; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
   .th-add-btn:hover { color: var(--accent); }
@@ -339,6 +340,23 @@ function makeColHeader(h, ci, total, table) {
   name.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); name.blur(); } };
   inner.appendChild(name);
 
+  const moveWrap = document.createElement("div");
+  moveWrap.className = "col-move-wrap";
+
+  if (ci > 1) {
+    const ml = document.createElement("button");
+    ml.className = "col-btn"; ml.textContent = "←"; ml.title = "Move left";
+    ml.onclick = e => { e.stopPropagation(); moveColumn(ci, ci - 1, table); };
+    moveWrap.appendChild(ml);
+  }
+  if (ci > 0 && ci < total - 1) {
+    const mr = document.createElement("button");
+    mr.className = "col-btn"; mr.textContent = "→"; mr.title = "Move right";
+    mr.onclick = e => { e.stopPropagation(); moveColumn(ci, ci + 1, table); };
+    moveWrap.appendChild(mr);
+  }
+  if (moveWrap.children.length) inner.appendChild(moveWrap);
+
   if (ci > 0) {
     const dc = document.createElement("button");
     dc.className = "col-btn del"; dc.textContent = "✕"; dc.title = "Delete column";
@@ -348,6 +366,24 @@ function makeColHeader(h, ci, total, table) {
 
   th.appendChild(inner);
   return th;
+}
+
+function moveColumn(from, to, table) {
+  const hdrs = table === "products" ? headers : featHeaders;
+  const rows = table === "products" ? getProductsFromDOM() : getFeaturesFromDOM();
+
+  // Swap header
+  [hdrs[from], hdrs[to]] = [hdrs[to], hdrs[from]];
+  // Swap data in each row
+  rows.forEach(r => {
+    const keys = Object.keys(r);
+    const tmp = r[hdrs[from]];
+    r[hdrs[from]] = r[hdrs[to]];
+    r[hdrs[to]] = tmp;
+  });
+
+  if (table === "products") { headers = hdrs; render(hdrs, rows); scheduleSave(); }
+  else { featHeaders = hdrs; renderFeatures(hdrs, rows); scheduleFeatSave(); }
 }
 
 function makeDataRow(product, ri, hdrs, table) {
