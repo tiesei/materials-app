@@ -148,7 +148,7 @@
   th.col-colors  { width: 160px; }
   th.col-weight  { width: 90px; }
   th.col-price   { width: 100px; }
-  th.col-action  { width: 56px; }
+  th.col-action  { width: 52px; }
 
   td {
     padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border);
@@ -211,7 +211,8 @@
   }
   .reparse-btn:hover { color: var(--accent); border-color: var(--accent); }
   .reparse-btn.spinning { animation: spin 0.8s linear infinite; pointer-events: none; }
-  .delete-btn { background: none; border: none; cursor: pointer; color: transparent; font-size: 13px; padding: 2px 4px; border-radius: 3px; transition: color 0.15s; line-height: 1; }
+  .col-action { white-space: nowrap; }
+  .delete-btn { background: none; border: none; cursor: pointer; color: transparent; font-size: 13px; padding: 2px 3px; border-radius: 3px; transition: color 0.15s; line-height: 1; vertical-align: middle; }
   tr:hover .delete-btn { color: var(--text-muted); }
   .delete-btn:hover { color: #8b3a2a !important; }
 
