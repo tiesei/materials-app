@@ -148,7 +148,7 @@
   th.col-colors  { width: 160px; }
   th.col-weight  { width: 90px; }
   th.col-price   { width: 100px; }
-  th.col-action  { width: 40px; }
+  th.col-action  { width: 56px; }
 
   td {
     padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--border);
@@ -211,6 +211,9 @@
   }
   .reparse-btn:hover { color: var(--accent); border-color: var(--accent); }
   .reparse-btn.spinning { animation: spin 0.8s linear infinite; pointer-events: none; }
+  .delete-btn { background: none; border: none; cursor: pointer; color: transparent; font-size: 13px; padding: 2px 4px; border-radius: 3px; transition: color 0.15s; line-height: 1; }
+  tr:hover .delete-btn { color: var(--text-muted); }
+  .delete-btn:hover { color: #8b3a2a !important; }
 
   .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
   .empty-state p { font-size: 14px; margin-top: 0.5rem; }
@@ -631,7 +634,18 @@ function renderRow(item, idx) {
   const repBtn = document.createElement("button");
   repBtn.className = "reparse-btn"; repBtn.title = "Refresh"; repBtn.textContent = "↻";
   repBtn.onclick = () => reparseMaterial(itemUrl, repBtn);
+  const delBtn = document.createElement("button");
+  delBtn.className = "delete-btn"; delBtn.title = "Delete"; delBtn.textContent = "✕";
+  delBtn.onclick = async () => {
+    if (!confirm("Delete this material?")) return;
+    delBtn.textContent = "…"; delBtn.disabled = true;
+    try {
+      await apiFetch(`${API}/materials?url=${encodeURIComponent(itemUrl)}`, { method: "DELETE" });
+      tr.remove();
+    } catch(e) { delBtn.textContent = "✕"; delBtn.disabled = false; }
+  };
   tdAction.appendChild(repBtn);
+  tdAction.appendChild(delBtn);
 
   tr.append(tdType, tdPhoto, tdTitle, tdDesc, tdNotes, tdColors, tdWeight, tdPrice, tdAction);
   return tr;
