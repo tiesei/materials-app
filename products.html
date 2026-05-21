@@ -327,12 +327,22 @@ function makeColHeader(h, ci, total, table) {
 
   const inner = document.createElement("div");
   inner.className = "th-inner";
+  inner.style.cssText = "display:flex;align-items:center;gap:3px;";
+
+  // Left arrow
+  if (ci > 1) {
+    const ml = document.createElement("button");
+    ml.className = "col-btn"; ml.textContent = "←"; ml.title = "Move left";
+    ml.onclick = e => { e.stopPropagation(); moveColumn(ci, ci - 1, table); };
+    inner.appendChild(ml);
+  }
 
   const name = document.createElement("span");
   name.className = "th-name";
   name.contentEditable = "true";
   name.textContent = h;
   name.spellcheck = false;
+  name.style.cssText = "flex:1;min-width:0;";
   name.onblur = () => {
     if (table === "products") { headers[ci] = name.textContent.trim() || h; scheduleSave(); }
     else { featHeaders[ci] = name.textContent.trim() || h; scheduleFeatSave(); }
@@ -340,26 +350,19 @@ function makeColHeader(h, ci, total, table) {
   name.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); name.blur(); } };
   inner.appendChild(name);
 
-  const moveWrap = document.createElement("div");
-  moveWrap.className = "col-move-wrap";
-
-  if (ci > 1) {
-    const ml = document.createElement("button");
-    ml.className = "col-btn"; ml.textContent = "←"; ml.title = "Move left";
-    ml.onclick = e => { e.stopPropagation(); moveColumn(ci, ci - 1, table); };
-    moveWrap.appendChild(ml);
-  }
+  // Right arrow
   if (ci > 0 && ci < total - 1) {
     const mr = document.createElement("button");
     mr.className = "col-btn"; mr.textContent = "→"; mr.title = "Move right";
     mr.onclick = e => { e.stopPropagation(); moveColumn(ci, ci + 1, table); };
-    moveWrap.appendChild(mr);
+    inner.appendChild(mr);
   }
-  if (moveWrap.children.length) inner.appendChild(moveWrap);
 
+  // Delete — 5px gap from right arrow
   if (ci > 0) {
     const dc = document.createElement("button");
     dc.className = "col-btn del"; dc.textContent = "✕"; dc.title = "Delete column";
+    dc.style.marginLeft = "7px";
     dc.onclick = e => { e.stopPropagation(); deleteColumn(ci, table); };
     inner.appendChild(dc);
   }
