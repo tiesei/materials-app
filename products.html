@@ -103,7 +103,8 @@
   }
   th:first-child { width: 140px; }
   th.th-add { width: 28px; }
-  th.th-del { width: 20px; }
+  th.th-del { width: 28px; position: sticky; right: 0; background: var(--surface); z-index: 1; }
+  td.td-del { position: sticky; right: 0; background: var(--surface); }
 
   .th-inner {
     padding: 4px 8px;
@@ -416,7 +417,7 @@ function makeDataRow(product, ri, hdrs, table) {
   });
   const tdAdd = document.createElement("td"); tr.appendChild(tdAdd);
   const tdDel = document.createElement("td");
-  const delBtn = document.createElement("button");
+  tdDel.className = "td-del";
   delBtn.className = "del-row-btn"; delBtn.textContent = "✕"; delBtn.title = "Delete";
   delBtn.onclick = () => { tr.remove(); if (table === "products") scheduleSave(); else scheduleFeatSave(); };
   tdDel.appendChild(delBtn); tr.appendChild(tdDel);
